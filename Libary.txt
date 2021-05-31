@@ -27,8 +27,8 @@
  *  CU-MacroLibrary uses the Fiji image processing package exclusively – there is no need
  *  to install additional plugins: You can simply edit or run this code by loading and
  *  executing it with the Macro plugin.
- *  To install the CU-MacroLibrary with your copy of ImageJ2, simply copy the "Library.txt"
- *  to "Fiji.app\macros" and its content will be available to any executed or installed macro.
+ *  To install the CU-MacroLibrary with your copy of Fiji, simply copy the "Library.txt"
+ *  to "Fiji.app\macros\" and its content will be available to any executed or installed macro.
  *  In addition, ImageJ2's macro editor will autocomplete function names from the library.
  */
 
