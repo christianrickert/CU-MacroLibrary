@@ -8,6 +8,6 @@ CU-CellSeg requires a recent version of the [Fiji](https://fiji.sc/) image proce
 * Bio-Formats plugin (>= 6.4.0)
 
 ### Software installation
-To install the CU-MacroLibrary with your copy of ImageJ2, simply copy the `Library.txt`
-to `Fiji.app\macros` and its content will be available to any executed or installed macro.
+To install the CU-MacroLibrary with your copy of Fiji, simply copy the `Library.txt`
+to `Fiji.app\macros\` and its content will be available to any executed or installed macro.
 In addition, ImageJ2's macro editor will autocomplete function names from the library.
