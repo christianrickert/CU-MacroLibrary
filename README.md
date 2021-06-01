@@ -5,7 +5,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4885048.svg)](https://doi.org/10.5281/zenodo.4885048)
 
 ### Software requirements
-CU-CellSeg requires a recent version of the [Fiji](https://fiji.sc/) image processing package:
+CU-MacroLibrary requires a recent version of the [Fiji](https://fiji.sc/) image processing package:
 * ImageJ2 app (>= 1.53e)
 * Bio-Formats plugin (>= 6.4.0)
 
