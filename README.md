@@ -6,7 +6,7 @@
 
 ### Software requirements
 CU-MacroLibrary requires a recent version of the [Fiji](https://fiji.sc/) image processing package:
-* ImageJ2 app (>= 1.53e)
+* ImageJ2 executable (>= 1.53e)
 * Bio-Formats plugin (>= 6.4.0)
 
 ### Software installation
