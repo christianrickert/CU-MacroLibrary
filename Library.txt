@@ -89,6 +89,8 @@ function addRemainderRegion(parentRegionIndex, childRegionIndices)
 
   roiManager("select", parentRegionIndex);  // parent region
 
+  // hint: use 'newArray(a, b, c)' to substract regions a, b, and c from the parent region,
+  // and use 'newArray(toString(d))' to substract a single region, d, from the parent region
   for (i = 0; i < childRegionIndicesLength; ++i )  // child regions
   {
     setKeyDown("alt");  // simulate pressing the ALT key (down position)
