@@ -39,7 +39,7 @@ requires("1.53e");  // minimum ImageJ version
  */
 
 // global, preset for macros
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-07-07)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-07-08)";
 
 // local, overwritten by macros
 array = newArray(0);
@@ -247,8 +247,9 @@ function initializeRun()
   printDateTimeStamp();
   print("ImageJ2 v" + IJ.getFullVersion);
   print(versionString);
-  deleteAllRegions();  // clear ROI Manager list
   run("Close All");  // close all image windows
+  deleteAllRegions();  // remove all regions from ROI Manager
+  run("Clear Results");  // empty Results table
 }
 
 // Function to check, if a specific window is available
