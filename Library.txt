@@ -39,7 +39,7 @@ requires("1.53e");  // minimum ImageJ version
  */
 
 // global, preset for macros
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-07-08)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-08-04)";
 
 // local, overwritten by macros
 array = newArray(0);
@@ -232,6 +232,45 @@ function getResizedSelection(index, value, unit)
     pixel = "";
   roiManager("select", index);
   run("Enlarge...", "enlarge=" + v2p(value) + pixel);  // always returns a selection
+}
+
+// Function to convert grayscale image masks into ROIs
+function getRoisFromMasks(background)
+{
+  output = 0;
+  rois = roiManager("count");
+
+  // start ROI Manager if not available yet
+  withRoiManager = isAvailableWindow("ROI Manager");
+  if ( !withRoiManager )
+    run("ROI Manager...");
+
+  // convert image to grayscale, if necessary
+  toggleBatchMode(true, false);
+  run("Duplicate...", "title=tmp");
+  bits = bitDepth();
+  if ( bits == 32 )
+    run("16-bit");
+
+  // get image metadata
+  run("Select None");
+  getStatistics(pixels, mean, min, max);
+  if ( background == false )  // do not include background mask
+    min++;
+
+  for ( i = min; i <= max; i++ )
+  {
+    setThreshold(i, i);  // threshold individual mask by color
+    run("Create Selection");
+    roiManager("Add");
+    renameRegion((rois + i - min), "roi:" + i);
+  }
+
+  output = roiManager("count") - rois;
+  close("tmp");
+  roiManager("Show All with labels");
+  toggleBatchMode(true, false);
+  return output
 }
 
 // Function initializes and returns an array with default values
