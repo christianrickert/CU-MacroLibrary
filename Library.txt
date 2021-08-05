@@ -39,7 +39,7 @@ requires("1.53e");  // minimum ImageJ version
  */
 
 // global, preset for macros
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-08-04)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-08-05)";
 
 // local, overwritten by macros
 array = newArray(0);
@@ -237,6 +237,8 @@ function getResizedSelection(index, value, unit)
 // Function to convert grayscale image masks into ROIs
 function getRoisFromMasks(background)
 {
+  // Basic assumption is that the background is black (value: 0) and that masks
+  // have incrementing grayscale values ranging from 1 to the total number of ROIs.
   output = 0;
   rois = roiManager("count");
 
@@ -247,29 +249,33 @@ function getRoisFromMasks(background)
 
   // convert image to grayscale, if necessary
   toggleBatchMode(true, false);
+  run("Select None");  // get full image for duplication
   run("Duplicate...", "title=tmp");
   bits = bitDepth();
   if ( bits == 32 )
     run("16-bit");
 
   // get image metadata
-  run("Select None");
   getStatistics(pixels, mean, min, max);
   if ( background == false )  // do not include background mask
-    min++;
+    min++;  // assuming the background roi is at index 0
 
+  showStatus("!");  // suppress thresholding/conversion status updates
   for ( i = min; i <= max; i++ )
   {
     setThreshold(i, i);  // threshold individual mask by color
-    run("Create Selection");
+    run("Create Selection");  // extremely slow
     roiManager("Add");
     renameRegion((rois + i - min), "roi:" + i);
+    if ( i % 10 == 0 || i == max )
+      showStatus("!Adding " + i + " out of " + max + " selections to ROI Manager...");
   }
 
   output = roiManager("count") - rois;
   close("tmp");
   roiManager("Show All with labels");
   toggleBatchMode(true, false);
+  showStatus("");  // enable status updates
   return output
 }
 
@@ -477,6 +483,55 @@ function saveLogFile(file)
 {
   selectWindow("Log"); //select Log window
   saveAs("Text", file);
+}
+
+// Function to fill ROIs with grayscale image masks
+function setMasksFromRois(background)
+{
+  // Basic assumption is that the background is black (value: 0) and that masks
+  // have incrementing grayscale values ranging from 1 to the total number of ROIs.
+  output = 0;
+  rois = roiManager("count");
+
+  // get image dimensions from rois
+  toggleBatchMode(true, false);
+  getDimensions(width, height, channels, slices, frames);
+  fov_width = 0;
+  fov_height = 0;
+  for ( i = 0; i < rois; i++  )
+  {
+    roiManager("select", i);
+    Roi.getBounds(x, y, width, height);
+    tmp_width = x + width;
+    if ( tmp_width > fov_width )  // increase width
+      fov_width = tmp_width;
+    tmp_height = y + height;
+    if ( tmp_height > fov_height )  // increase height
+      fov_height = tmp_height;
+  }
+
+  // create fov image
+  newImage("masks from rois", "16-bit black", fov_width, fov_height, 1);
+  min = 1;  // minimum gray value
+  max = rois;  // maximum gray value
+  if ( background == true )  // include background mask
+    min--;  // assuming the background roi is at index 0
+
+  for ( i = 0; i < rois; i++  )
+  {
+    roiManager("select", i);
+    Roi.getContainedPoints(px_xx, px_yy);
+
+    px_len = px_xx.length;
+    for ( j = 0; j < px_len; j++ )
+    {
+      setPixel(px_xx[j], px_yy[j], i);  // surprisingly fast
+    }
+  }
+
+  run("Select None");
+  updateDisplayRange(min, max);
+  toggleBatchMode(true, false);
 }
 
 // Function to toggle the batch mode on/off or show/hide images while in batch mode
