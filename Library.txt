@@ -532,6 +532,8 @@ function setMasksFromRois(background)
   run("Select None");
   updateDisplayRange(min, max);
   toggleBatchMode(true, false);
+  output = max - min;
+  return output;
 }
 
 // Function to toggle the batch mode on/off or show/hide images while in batch mode
