@@ -15,16 +15,16 @@ to `Fiji.app\macros\` and its content will be available to any executed or insta
 In addition, ImageJ2's macro editor will autocomplete function names from the library.
 
 ### Available macro functions (selection)
-* **addRemainderRegion**: implements the missing `Substract` function for the ROI Manager.
-* **endsWithEither**: simple test if a string ends with suffixes from a list.
-* **getMedian**: calculates the median value within given threshold values.
-* **getRoisFromMasks**: populates the ROI Manager with regions identified from a segmentation mask.
-* **normalizePixelValues**: normalizes the pixel intensities of an image by its median value.
-* **readImage**: reads image files with Bio-Format and labels the slices with the channel names.
-* **rescalePixelValues**: rescales pixel intensities to a custom range, including `NaN` values.
-* **setMasksFromRois**: creates a segmentation mask from available ROI Manager regions.
-* **toggleBatchMode**: improves performance for image processing, selections, and ROI Manager updates.
-* **waitForWindow**: halts the macro progression until a window with a specific title is available.
+* [**`addRemainderRegion`**](https://github.com/christianrickert/CU-MacroLibrary/blob/61320e08ccf337cc078b0ad02a4afd7299ad3034/Library.txt#L84): implements the missing `Substract` function for the ROI Manager.
+* [**`endsWithEither`**](https://github.com/christianrickert/CU-MacroLibrary/blob/61320e08ccf337cc078b0ad02a4afd7299ad3034/Library.txt#L144): simple test if a string ends with suffixes from a list.
+* [**`getMedian`**](https://github.com/christianrickert/CU-MacroLibrary/blob/61320e08ccf337cc078b0ad02a4afd7299ad3034/Library.txt#L182): calculates the median value within given threshold values.
+* [**`getRoisFromMasks`**](https://github.com/christianrickert/CU-MacroLibrary/blob/61320e08ccf337cc078b0ad02a4afd7299ad3034/Library.txt#L237): populates the ROI Manager with regions identified from a segmentation mask.
+* [**`normalizePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/61320e08ccf337cc078b0ad02a4afd7299ad3034/Library.txt#L316): normalizes the pixel intensities of an image by its median value.
+* [**`readImage`**](https://github.com/christianrickert/CU-MacroLibrary/blob/61320e08ccf337cc078b0ad02a4afd7299ad3034/Library.txt#L346): reads image files with Bio-Format and labels the slices with the channel names.
+* [**`rescalePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/61320e08ccf337cc078b0ad02a4afd7299ad3034/Library.txt#L424): rescales pixel intensities to a custom range, including `NaN` values.
+* [**`setMasksFromRois`**](https://github.com/christianrickert/CU-MacroLibrary/blob/61320e08ccf337cc078b0ad02a4afd7299ad3034/Library.txt#L488): creates a segmentation mask from available ROI Manager regions.
+* [**`toggleBatchMode`**](https://github.com/christianrickert/CU-MacroLibrary/blob/61320e08ccf337cc078b0ad02a4afd7299ad3034/Library.txt#L539): improves performance for image processing, selections, and ROI Manager updates.
+* [**`waitForWindow`**](https://github.com/christianrickert/CU-MacroLibrary/blob/61320e08ccf337cc078b0ad02a4afd7299ad3034/Library.txt#L632): halts the macro progression until a window with a specific title is available.
 
 ### Copyright notices
 The [ImageJ2 image](https://github.com/imagej/imagej.github.io/blob/main/media/icons/imagej-shadow.png) is part of the [GitHub Pages for ImageJ](https://github.com/imagej/imagej.github.io).
