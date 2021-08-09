@@ -240,42 +240,47 @@ function getRoisFromMasks(background)
   // Basic assumption is that the background is black (value: 0) and that masks
   // have incrementing grayscale values ranging from 1 to the total number of ROIs.
   output = 0;
-  rois = roiManager("count");
 
-  // start ROI Manager if not available yet
-  withRoiManager = isAvailableWindow("ROI Manager");
-  if ( !withRoiManager )
-    run("ROI Manager...");
-
-  // convert image to 32-bit grayscale
-  toggleBatchMode(true, false);
-  run("Select None");  // get full image for duplication
-  run("Duplicate...", "title=tmp");
-  bits = bitDepth();
-  if ( bits != 32 && ( bits == 8 || bits == 16 ) )
-    run("32-bit");
-
-  // get image metadata
-  getRawStatistics(pixels, mean, min, max);
-  if ( background == false )  // do not include background mask
-    min++;  // assuming the background roi is at index 0
-
-  showStatus("!");  // suppress thresholding/conversion status updates
-  for ( i = min; i <= max; i++ )
+  getRawStatistics(nPixels);
+  if ( nPixels > 0 )
   {
-    setThreshold(i, i);  // threshold individual mask by grayscale value
-    run("Create Selection");  // extremely slow, 5-10% faster for 32-bit
-    roiManager("Add");
-    renameRegion((rois + i - min), "roi:" + i);
-    if ( i % 10 == 0 || i == max )
-      showStatus("!Adding " + i + " out of " + max + " selections to ROI Manager...");
-  }
+    // start ROI Manager if not available yet
+    withRoiManager = isAvailableWindow("ROI Manager");
+    if ( !withRoiManager )
+      run("ROI Manager...");
+    rois = roiManager("count");
 
-  output = roiManager("count") - rois;
-  close("tmp");
-  roiManager("Show All with labels");
-  toggleBatchMode(true, false);
-  showStatus("");  // enable status updates
+    // convert image to 32-bit grayscale
+    toggleBatchMode(true, false);
+
+    run("Select None");  // get full image for duplication
+    run("Duplicate...", "title=tmp");
+    bits = bitDepth();
+    if ( bits != 32 && ( bits == 8 || bits == 16 ) )
+      run("32-bit");
+
+    // get image metadata
+    getRawStatistics(pixels, mean, min, max);
+    if ( background == false )  // do not include background mask
+      min++;  // assuming the background roi is at index 0
+
+    showStatus("!");  // suppress thresholding/conversion status updates
+    for ( i = min; i <= max; i++ )
+    {
+      setThreshold(i, i);  // threshold individual mask by grayscale value
+      run("Create Selection");  // extremely slow, 5-10% faster for 32-bit
+      roiManager("Add");
+      renameRegion((rois + i - min), "roi:" + i);
+      if ( i % 10 == 0 || i == max )
+        showStatus("!Adding " + i + " out of " + max + " selections to ROI Manager...");
+    }
+
+    output = roiManager("count") - rois;
+    close("tmp");
+    roiManager("Show All with labels");
+    toggleBatchMode(true, false);
+    showStatus("");  // enable status updates
+  }
   return output
 }
 
@@ -485,7 +490,7 @@ function saveLogFile(file)
   saveAs("Text", file);
 }
 
-// Function to fill ROIs with grayscale image masks
+// Function to convert ROIs into grayscale image masks
 function setMasksFromRois(background)
 {
   // Basic assumption is that the background is black (value: 0) and that masks
@@ -493,46 +498,53 @@ function setMasksFromRois(background)
   output = 0;
   rois = roiManager("count");
 
-  // get image dimensions from rois
-  toggleBatchMode(true, false);
-  getDimensions(width, height, channels, slices, frames);
-  min_width = 0;
-  min_height = 0;
-  for ( i = 0; i < rois; i++  )
+  if ( rois > 0 )
   {
-    roiManager("select", i);
-    Roi.getBounds(x, y, width, height);
-    tmp_width = x + width;
-    if ( tmp_width > min_width )  // increase width
-      min_width = tmp_width;
-    tmp_height = y + height;
-    if ( tmp_height > min_height )  // increase height
-      min_height = tmp_height;
-  }
-
-  // create fov image
-  newImage("masks from rois", "32-bit black", min_width, min_height, 1);
-  min = 1;  // minimum gray value
-  max = rois;  // maximum gray value
-  if ( background == true )  // include background mask
-    min--;  // assuming the background roi is at index 0
-
-  for ( i = 0; i < rois; i++  )
-  {
-    roiManager("select", i);
-    Roi.getContainedPoints(px_xx, px_yy);
-
-    px_len = px_xx.length;
-    for ( j = 0; j < px_len; j++ )
+    // create maximum image and adjust output dimensions by cropping
+    start_width = 8192;  // required for absolute values from Roi.getBounds()
+    start_height = 8192;
+    end_width = 0;
+    end_height = 0;
+    toggleBatchMode(true, false);
+    newImage("masks from rois", "32-bit black", start_width, start_height, 1);
+    for ( i = 0; i < rois; i++  )
     {
-      setPixel(px_xx[j], px_yy[j], i);  // surprisingly fast
+      roiManager("select", i);
+      Roi.getBounds(x, y, width, height);  // bounding box dimensions for ROI
+      tmp_width = x + width;
+      if ( tmp_width > end_width )  // increase width
+        end_width = tmp_width;
+      tmp_height = y + height;
+      if ( tmp_height > end_height )  // increase height
+        end_height = tmp_height;
     }
-  }
+    makeRectangle(0, 0, end_width, end_height);
+    run("Crop");
 
-  run("Select None");
-  updateDisplayRange(min, max);
-  toggleBatchMode(true, false);
-  output = max - min;
+    // check gray value range
+    min = 1;  // minimum gray value
+    max = rois;  // maximum gray value
+    if ( background == true )  // include background mask
+      min--;  // assuming the background roi is at index 0
+
+    // draw gray values
+    for ( i = 0; i < rois; i++  )
+    {
+      roiManager("select", i);
+      Roi.getContainedPoints(px_xx, px_yy);
+
+      px_len = px_xx.length;
+      for ( j = 0; j < px_len; j++ )
+      {
+        setPixel(px_xx[j], px_yy[j], i);  // surprisingly fast
+      }
+    }
+
+    run("Select None");
+    updateDisplayRange(min, max);
+    toggleBatchMode(true, false);
+    output = max - min;
+  }
   return output;
 }
 
