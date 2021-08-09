@@ -252,7 +252,6 @@ function getRoisFromMasks(background)
 
     // convert image to 32-bit grayscale
     toggleBatchMode(true, false);
-
     run("Select None");  // get full image for duplication
     run("Duplicate...", "title=tmp");
     bits = bitDepth();
@@ -507,6 +506,7 @@ function setMasksFromRois(background)
     end_height = 0;
     toggleBatchMode(true, false);
     newImage("masks from rois", "32-bit black", start_width, start_height, 1);
+
     for ( i = 0; i < rois; i++  )
     {
       roiManager("select", i);
@@ -518,6 +518,7 @@ function setMasksFromRois(background)
       if ( tmp_height > end_height )  // increase height
         end_height = tmp_height;
     }
+
     makeRectangle(0, 0, end_width, end_height);
     run("Crop");
 
