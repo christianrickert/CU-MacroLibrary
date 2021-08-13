@@ -15,16 +15,16 @@ to `Fiji.app\macros\` and its content will be available to any executed or insta
 In addition, ImageJ2's macro editor will autocomplete function names from the library.
 
 ### Available macro functions (selection)
-* [**`addRemainderRegion`**](https://github.com/christianrickert/CU-MacroLibrary/blob/6c56790bbad795bc61439a19f2617b0acaf1f3b9/Library.txt#L85): implements the missing `Substract` function for the ROI Manager.
-* [**`endsWithEither`**](https://github.com/christianrickert/CU-MacroLibrary/blob/6c56790bbad795bc61439a19f2617b0acaf1f3b9/Library.txt#L145): simple test if a string ends with suffixes from a list.
-* [**`getMedian`**](https://github.com/christianrickert/CU-MacroLibrary/blob/6c56790bbad795bc61439a19f2617b0acaf1f3b9/Library.txt#L183): calculates the median value within given threshold values.
-* [**`getRoisFromMasks`**](https://github.com/christianrickert/CU-MacroLibrary/blob/6c56790bbad795bc61439a19f2617b0acaf1f3b9/Library.txt#L238): populates the ROI Manager with regions identified from a segmentation mask.
-* [**`normalizePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/6c56790bbad795bc61439a19f2617b0acaf1f3b9/Library.txt#L321): normalizes the pixel intensities of an image by its median value.
-* [**`readImage`**](https://github.com/christianrickert/CU-MacroLibrary/blob/6c56790bbad795bc61439a19f2617b0acaf1f3b9/Library.txt#L351): reads image files with Bio-Format and labels the slices with the channel names.
-* [**`rescalePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/6c56790bbad795bc61439a19f2617b0acaf1f3b9/Library.txt#L429): rescales pixel intensities to a custom range, including `NaN` values.
-* [**`setMasksFromRois`**](https://github.com/christianrickert/CU-MacroLibrary/blob/6c56790bbad795bc61439a19f2617b0acaf1f3b9/Library.txt#L493): creates a segmentation mask from available ROI Manager regions.
-* [**`toggleBatchMode`**](https://github.com/christianrickert/CU-MacroLibrary/blob/6c56790bbad795bc61439a19f2617b0acaf1f3b9/Library.txt#L553): improves performance for image processing, selections, and ROI Manager updates.
-* [**`waitForWindow`**](https://github.com/christianrickert/CU-MacroLibrary/blob/6c56790bbad795bc61439a19f2617b0acaf1f3b9/Library.txt#L646): halts the macro progression until a window with a specific title is available.
+* [**`addRemainderRegion`**](https://github.com/christianrickert/CU-MacroLibrary/blob/34c62135ba6d890f0f8053c3e8fdcbc58522738b/Library.txt#L85): implements the missing `Substract` function for the ROI Manager.
+* [**`endsWithEither`**](https://github.com/christianrickert/CU-MacroLibrary/blob/34c62135ba6d890f0f8053c3e8fdcbc58522738b/Library.txt#L145): simple test if a string ends with suffixes from a list.
+* [**`getMedian`**](https://github.com/christianrickert/CU-MacroLibrary/blob/34c62135ba6d890f0f8053c3e8fdcbc58522738b/Library.txt#L183): calculates the median value within given threshold values.
+* [**`getRoisFromMasks`**](https://github.com/christianrickert/CU-MacroLibrary/blob/34c62135ba6d890f0f8053c3e8fdcbc58522738b/Library.txt#L250): populates the ROI Manager with regions identified from a segmentation mask.
+* [**`normalizePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/34c62135ba6d890f0f8053c3e8fdcbc58522738b/Library.txt#L347): normalizes the pixel intensities of an image by its median value.
+* [**`readImage`**](https://github.com/christianrickert/CU-MacroLibrary/blob/34c62135ba6d890f0f8053c3e8fdcbc58522738b/Library.txt#L377): reads image files with Bio-Format and labels the slices with the channel names.
+* [**`rescalePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/34c62135ba6d890f0f8053c3e8fdcbc58522738b/Library.txt#L455): rescales pixel intensities to a custom range, including `NaN` values.
+* [**`setMasksFromRois`**](https://github.com/christianrickert/CU-MacroLibrary/blob/34c62135ba6d890f0f8053c3e8fdcbc58522738b/Library.txt#L519): creates a segmentation mask from available ROI Manager regions.
+* [**`toggleBatchMode`**](https://github.com/christianrickert/CU-MacroLibrary/blob/34c62135ba6d890f0f8053c3e8fdcbc58522738b/Library.txt#L588): improves performance for image processing, selections, and ROI Manager updates.
+* [**`waitForWindow`**](https://github.com/christianrickert/CU-MacroLibrary/blob/34c62135ba6d890f0f8053c3e8fdcbc58522738b/Library.txt#L681): halts the macro progression until a window with a specific title is available.
 
 ### Copyright notices
 The [ImageJ2 image](https://github.com/imagej/imagej.github.io/blob/main/media/icons/imagej-shadow.png) is part of the [GitHub Pages for ImageJ](https://github.com/imagej/imagej.github.io).
