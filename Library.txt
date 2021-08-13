@@ -120,7 +120,7 @@ function colorGroup(index, red, green, blue)
   setForegroundColor(red, green, blue);
   RoiManager.selectGroup(index);
   if ( RoiManager.selected() > 0 )
-    roiManager("Fill");
+    roiManager("fill");
   clearAllSelections();
 }
 
@@ -205,6 +205,18 @@ function getPixelCalibration()
   return output;
 }
 
+// Function to get id from region of interest name
+function getRegionID(index)
+{
+  delimiter = ":";
+
+  roiManager("select", index);
+  regionName = Roi.getName();
+  delimiterIndex = indexOf(regionName, delimiter);
+  regionID = substring(regionName, 0, delimiterIndex);  // region id (without delimiter)
+  return regionID;
+}
+
 // Function to return relative overlap between two regions of interest
 function getRegionOverlap(parentRegionIndex, childRegionIndex)
 {
@@ -238,8 +250,11 @@ function getResizedSelection(index, value, unit)
 // Function to convert grayscale image masks into ROIs
 function getRoisFromMasks(background)
 {
-  // Basic assumption is that the background is black (value: 0) and that masks
-  // have incrementing grayscale values ranging from 1 to the total number of ROIs.
+  // Basic assumption is that the background has the lowest grayscale value and that
+  // masks have sequentially incrementing values up to the total number of ROIs.
+  // Running the 'Analyze Particles...' function after 'Create Selection' triggers
+  // severe side effects (slow initialization, empty ROI Manager list, etc.).
+  delimiter = ":";
   output = 0;
 
   getRawStatistics(nPixels);
@@ -251,33 +266,44 @@ function getRoisFromMasks(background)
       run("ROI Manager...");
     rois = roiManager("count");
 
-    // convert image to 32-bit grayscale
+    // convert image to 32-bit grayscale and get statistics
     toggleBatchMode(true, false);
     run("Select None");  // get full image for duplication
     run("Duplicate...", "title=tmp");
     bits = bitDepth();
     if ( bits != 32 && ( bits == 8 || bits == 16 ) )
       run("32-bit");
-
-    // get image metadata
     getRawStatistics(pixels, mean, min, max);
-    if ( background == false )  // do not include background mask
-      min++;  // assuming the background roi is at index 0
+    roi = min + 1;  // first region of interest
 
-    showStatus("!");  // suppress thresholding/conversion status updates
-    for ( i = min; i <= max; i++ )
+    // get regions of interest from grayscale values
+    showStatus("!");  // suppress automatic status updates
+    for ( i = roi; i <= max; i++ )
     {
       setThreshold(i, i);  // threshold individual mask by grayscale value
-      run("Create Selection");  // extremely slow, 5-10% faster for 32-bit
-      roiManager("Add");
-      renameRegion((rois + i - min), "roi:" + i);
-      if ( i % 10 == 0 || i == max )
-        showStatus("!Adding " + i + " out of " + max + " selections to ROI Manager...");
+      run("Analyze Particles...", "add");  // 40% faster than 'Create Selection'
+      if ( i % 100 == 0 || i == max )
+        showStatus("!Adding " + i + " out of " + max + " regions to ROI Manager...");
+    }
+
+    // label regions of interest with grayscale values
+    for ( i = roi; i <= max; i++ )
+      renameRegion(rois + (i - roi), toString(i) + delimiter + "roi");
+
+    // get background from lowest grayscale value
+    if ( background == true )
+    {
+      setThreshold(min, min);  // threshold background only
+      run("Create Selection");  // extremely slow, interferes with particle analysis
+      roiManager("add");
+      renameRegion(getLastRegionIndex(), toString(min) + delimiter + "roi");
+      output++;
     }
 
     output = roiManager("count") - rois;
     close("tmp");
-    roiManager("Show All with labels");
+    roiManager("sort");
+    roiManager("show all with labels");
     toggleBatchMode(true, false);
     showStatus("");  // enable status updates
   }
@@ -493,8 +519,11 @@ function saveLogFile(file)
 // Function to convert ROIs into grayscale image masks
 function setMasksFromRois(background)
 {
-  // Basic assumption is that the background is black (value: 0) and that masks
-  // have incrementing grayscale values ranging from 1 to the total number of ROIs.
+  // Basic assumption is that the background has the lowest Region ID or is at the
+  // lowest index position (0) in the ROI Manager. Consecutive masks have incrementing
+  // grayscale values ranging from the the background value plus 1 up to the total
+  // number of ROIs.
+  gray = 0;
   output = 0;
   rois = roiManager("count");
 
@@ -532,14 +561,20 @@ function setMasksFromRois(background)
     // draw gray values
     for ( i = 0; i < rois; i++  )
     {
+      regionID = parseInt(getRegionID(i));  // get grayscale value from ROI name
+      if ( isNaN(regionID) )  // grayscale value not found
+        gray = i;  // use incrementing grayscale values
+      else
+        gray = regionID;
       roiManager("select", i);
       Roi.getContainedPoints(px_xx, px_yy);
 
       px_len = px_xx.length;
       for ( j = 0; j < px_len; j++ )
       {
-        setPixel(px_xx[j], px_yy[j], i);  // surprisingly fast
+        setPixel(px_xx[j], px_yy[j], gray);  // surprisingly fast
       }
+
     }
 
     run("Select None");
