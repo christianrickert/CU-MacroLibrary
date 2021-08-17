@@ -299,7 +299,7 @@ function getRoisFromMasks()
           index = getLastRegionIndex();
           renameRegion(index, toString(rois + roi) + delimiter + "roi");
           floodFill(x, y);  // exclude selectedd pixels from future search
-          if ( index % 1000 == 0 || index == max )
+          if ( index % 1000 == 0 )
             showStatus("!Adding " + index + " out of " + max + " regions to ROI Manager...");
         }
       }
@@ -566,7 +566,7 @@ function setMasksFromRois()
         gray = index + 1;  // use incrementing grayscale values
       roiManager("select", index);
       fillRegion(gray);
-      if ( index % 1000 == 0 || index == rois )
+      if ( index % 1000 == 0 )
         showStatus("!Drawing " + index + " out of " + rois + " grayscale masks to image...");
     }
 
