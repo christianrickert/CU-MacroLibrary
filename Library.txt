@@ -248,22 +248,21 @@ function getResizedSelection(index, value, unit)
 }
 
 // Function to convert grayscale image masks into ROIs
-function getRoisFromMasks(background)
+function getRoisFromMasks()
 {
-  // Basic assumption is that the background has the lowest grayscale value and that
+  // Basic assumption is that the background has a grayscale value of zero and that
   // masks have sequentially incrementing values up to the total number of ROIs.
-  // Running the 'Analyze Particles...' function after 'Create Selection' triggers
-  // severe side effects (slow initialization, empty ROI Manager list, etc.).
   delimiter = ":";
   output = 0;
 
-  getRawStatistics(nPixels);
-  if ( nPixels > 0 )
+  getRawStatistics(pixels, mean, min, max);
+  if ( min > 0 )
   {
     // start ROI Manager if not available yet
     withRoiManager = isAvailableWindow("ROI Manager");
     if ( !withRoiManager )
       run("ROI Manager...");
+    roi = 0;
     rois = roiManager("count");
 
     // convert image to 32-bit grayscale and get statistics
@@ -273,31 +272,29 @@ function getRoisFromMasks(background)
     bits = bitDepth();
     if ( bits != 32 && ( bits == 8 || bits == 16 ) )
       run("32-bit");
-    getRawStatistics(pixels, mean, min, max);
-    roi = min + 1;  // first region of interest
+    getDimensions(width, height, channels, slices, frames);
 
     // get regions of interest from grayscale values
+    setForegroundColor(0, 0, 0);
     showStatus("!");  // suppress automatic status updates
-    for ( i = roi; i <= max; i++ )
+    for ( x = 0; x < width; x++ )
     {
-      setThreshold(i, i);  // threshold individual mask by grayscale value
-      run("Analyze Particles...", "add");  // 40% faster than 'Create Selection'
-      if ( i % 100 == 0 || i == max )
-        showStatus("!Adding " + i + " out of " + max + " regions to ROI Manager...");
-    }
 
-    // label regions of interest with grayscale values
-    for ( i = roi; i <= max; i++ )
-      renameRegion(rois + (i - roi), toString(i) + delimiter + "roi");
+      for ( y = 0; y < height; y++ )
+      {
+        roi = getPixel(x, y);
+        if ( roi > 0 )  // region of interest mask
+        {
+          doWand(x, y, 0, "4-connected");  // create selection for mask, fastest method
+          roiManager("add");
+          index = getLastRegionIndex();
+          renameRegion(index, toString(rois + roi) + delimiter + "roi");
+          floodFill(x, y);  // exclude selectedd pixels from future search
+          if ( index % 1000 == 0 || index == max )
+            showStatus("!Adding " + index + " out of " + max + " regions to ROI Manager...");
+        }
+      }
 
-    // get background from lowest grayscale value
-    if ( background == true )
-    {
-      setThreshold(min, min);  // threshold background only
-      run("Create Selection");  // extremely slow, interferes with particle analysis
-      roiManager("add");
-      renameRegion(getLastRegionIndex(), toString(min) + delimiter + "roi");
-      output++;
     }
 
     output = roiManager("count") - rois;
