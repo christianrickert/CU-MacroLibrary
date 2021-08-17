@@ -39,7 +39,7 @@ requires("1.53e");  // minimum ImageJ version
  */
 
 // global, preset for macros
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-08-12)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-08-17)";
 
 // local, overwritten by macros
 array = newArray(0);
@@ -300,7 +300,7 @@ function getRoisFromMasks()
     output = roiManager("count") - rois;
     close("tmp");
     roiManager("sort");
-    roiManager("show all with labels");
+    roiManager("Show None");
     toggleBatchMode(true, false);
     showStatus("");  // enable status updates
   }
