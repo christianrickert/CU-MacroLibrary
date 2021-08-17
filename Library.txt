@@ -256,7 +256,7 @@ function getRoisFromMasks()
   output = 0;
 
   getRawStatistics(pixels, mean, min, max);
-  if ( min > 0 )
+  if ( max > 0 )
   {
     // start ROI Manager if not available yet
     withRoiManager = isAvailableWindow("ROI Manager");
