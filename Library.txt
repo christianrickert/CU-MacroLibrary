@@ -300,7 +300,7 @@ function getRoisFromMasks()
           renameRegion(index, toString(rois + roi) + delimiter + "roi");
           floodFill(x, y);  // exclude selectedd pixels from future search
           if ( index % 1000 == 0 )
-            showStatus("!Adding " + index + " out of " + max + " regions to ROI Manager...");
+            showStatus("!Adding " + (index + 1) + " out of " + max + " regions to ROI Manager...");
         }
       }
 
@@ -567,7 +567,7 @@ function setMasksFromRois()
       roiManager("select", index);
       fillRegion(gray);
       if ( index % 1000 == 0 )
-        showStatus("!Drawing " + index + " out of " + rois + " grayscale masks to image...");
+        showStatus("!Drawing " + (index + 1) + " out of " + rois + " grayscale masks to image...");
     }
 
     run("Select None");
