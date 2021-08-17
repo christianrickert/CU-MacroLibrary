@@ -567,7 +567,7 @@ function setMasksFromRois(background)
       roiManager("select", index);
       fillRegion(gray);
       if ( index % 1000 == 0 || index == rois )
-        showStatus("!Adding " + index + " out of " + rois + " regions to ROI Manager...");
+        showStatus("!Drawing " + index + " out of " + rois + " grayscale masks to image...");
     }
 
     run("Select None");
