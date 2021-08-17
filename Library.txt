@@ -174,6 +174,15 @@ function freeMemory()
   call("java.lang.System.gc");
 }
 
+// Function to fill a region's pixels with a given gray value
+function fillRegion(v)
+{
+  Roi.getContainedPoints(xx, yy);
+  pixels = xx.length;
+  for ( i = 0; i < pixels; i++ )
+    setPixel(xx[i], yy[i], v);
+}
+
 // Function to return the index of the last ROI Manager element
 function getLastRegionIndex()
 {
@@ -297,12 +306,12 @@ function getRoisFromMasks()
 
     }
 
-    output = roiManager("count") - rois;
     close("tmp");
     roiManager("sort");
     roiManager("Show None");
     toggleBatchMode(true, false);
     showStatus("");  // enable status updates
+    output = roiManager("count") - rois;
   }
   return output
 }
@@ -516,10 +525,7 @@ function saveLogFile(file)
 // Function to convert ROIs into grayscale image masks
 function setMasksFromRois(background)
 {
-  // Basic assumption is that the background has the lowest Region ID or is at the
-  // lowest index position (0) in the ROI Manager. Consecutive masks have incrementing
-  // grayscale values ranging from the the background value plus 1 up to the total
-  // number of ROIs.
+  // Mask gray values are derived either from a Region ID or the ROI Manager position.
   gray = 0;
   output = 0;
   rois = roiManager("count");
@@ -534,9 +540,10 @@ function setMasksFromRois(background)
     toggleBatchMode(true, false);
     newImage("masks from rois", "32-bit black", start_width, start_height, 1);
 
-    for ( i = 0; i < rois; i++  )
+    // crop new image to required minimum size
+    for ( index = 0; index < rois; index++  )
     {
-      roiManager("select", i);
+      roiManager("select", index);
       Roi.getBounds(x, y, width, height);  // bounding box dimensions for ROI
       tmp_width = x + width;
       if ( tmp_width > end_width )  // increase width
@@ -545,38 +552,29 @@ function setMasksFromRois(background)
       if ( tmp_height > end_height )  // increase height
         end_height = tmp_height;
     }
-
     makeRectangle(0, 0, end_width, end_height);
     run("Crop");
 
-    // check gray value range
-    min = 1;  // minimum gray value
-    max = rois;  // maximum gray value
-    if ( background == true )  // include background mask
-      min--;  // assuming the background roi is at index 0
-
     // draw gray values
-    for ( i = 0; i < rois; i++  )
+    showStatus("!");  // suppress automatic status updates
+    for ( index = 0; index < rois; index++  )
     {
-      regionID = parseInt(getRegionID(i));  // get grayscale value from ROI name
-      if ( isNaN(regionID) )  // grayscale value not found
-        gray = i;  // use incrementing grayscale values
-      else
-        gray = regionID;
-      roiManager("select", i);
-      Roi.getContainedPoints(px_xx, px_yy);
-
-      px_len = px_xx.length;
-      for ( j = 0; j < px_len; j++ )
-      {
-        setPixel(px_xx[j], px_yy[j], gray);  // surprisingly fast
-      }
-
+      roi = parseInt(getRegionID(index));  // get grayscale value from Region ID
+      if ( !isNaN(roi) )
+        gray = roi;
+      else  // grayscale value not found
+        gray = index + 1;  // use incrementing grayscale values
+      roiManager("select", index);
+      fillRegion(gray);
+      if ( index % 1000 == 0 || index == rois )
+        showStatus("!Adding " + index + " out of " + rois + " regions to ROI Manager...");
     }
 
     run("Select None");
+    getRawStatistics(pixels, mean, min, max);
     updateDisplayRange(min, max);
     toggleBatchMode(true, false);
+    showStatus("");  // enable status updates
     output = max - min;
   }
   return output;
