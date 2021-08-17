@@ -523,7 +523,7 @@ function saveLogFile(file)
 }
 
 // Function to convert ROIs into grayscale image masks
-function setMasksFromRois(background)
+function setMasksFromRois()
 {
   // Mask gray values are derived either from a Region ID or the ROI Manager position.
   gray = 0;
