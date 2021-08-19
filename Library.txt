@@ -32,14 +32,14 @@
  *  In addition, ImageJ2's macro editor will autocomplete function names from the library.
  */
 
-requires("1.53e");  // minimum ImageJ version
+requires("1.53h");  // minimum ImageJ version
 
 /*
  *  Variables
  */
 
 // global, preset for macros
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-08-17)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-08-19)";
 
 // local, overwritten by macros
 array = newArray(0);
@@ -261,6 +261,8 @@ function getRoisFromMasks()
 {
   // Basic assumption is that the background has a grayscale value of zero and that
   // masks have sequentially incrementing values up to the total number of ROIs.
+  // Note that the 'doWand' function might fail for some "objects, especially one pixel
+  // wide lines [...] unless they have been thresholded".
   delimiter = ":";
   output = 0;
 
@@ -279,12 +281,12 @@ function getRoisFromMasks()
     run("Select None");  // get full image for duplication
     run("Duplicate...", "title=tmp");
     bits = bitDepth();
-    if ( bits != 32 && ( bits == 8 || bits == 16 ) )
+    if ( bits != 32 && ( bits == 8 || bits == 16 ) )  // available type conversions
       run("32-bit");
     getDimensions(width, height, channels, slices, frames);
 
     // get regions of interest from grayscale values
-    setForegroundColor(0, 0, 0);
+    Color.setForegroundValue(0);
     showStatus("!");  // suppress automatic status updates
     for ( x = 0; x < width; x++ )
     {
