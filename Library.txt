@@ -391,6 +391,8 @@ function readImage(file)
   // As counting of those metadata labels can be done with or without leading zeros,
   // we're using the same mechansim to try different combinations of labels with counts,
   // until we get a valid response from the Ext.getMetadataValue function.
+  // Requires the line "run("Bio-Formats Macro Extensions");" in your macro to
+  // initialize the Bio-Formats Macro Extensions before using this function.
   counting = "";  // metadata key count subsequential to key
   metadataPrefixes = newArray("ChannelName #", "Information|Image|Channel|Name #",
                               "Name #", "PageName #");
