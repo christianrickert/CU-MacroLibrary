@@ -39,7 +39,7 @@ requires("1.53h");  // minimum ImageJ version
  */
 
 // global, preset for macros
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-08-19)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-08-25)";
 
 // local, overwritten by macros
 array = newArray(0);
@@ -391,8 +391,6 @@ function readImage(file)
   // As counting of those metadata labels can be done with or without leading zeros,
   // we're using the same mechansim to try different combinations of labels with counts,
   // until we get a valid response from the Ext.getMetadataValue function.
-  // Requires the line "run("Bio-Formats Macro Extensions");" in your macro to
-  // initialize the Bio-Formats Macro Extensions before using this function.
   counting = "";  // metadata key count subsequential to key
   metadataPrefixes = newArray("ChannelName #", "Information|Image|Channel|Name #",
                               "Name #", "PageName #");
@@ -405,6 +403,7 @@ function readImage(file)
   slices = newArray(0);  // labels
   sliceCount = 0;
 
+  run("Bio-Formats Macro Extensions");  // make Bio-Formats macro extensions available
   run("Bio-Formats Windowless Importer", "open=" + v2p(file));
   Ext.setId(file);  // initializes the given id (file)
   Ext.getImageCount(sliceCount);
