@@ -19,12 +19,12 @@ In addition, ImageJ2's macro editor will autocomplete function names from the li
 * [**`endsWithEither`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L145): simple test if a string ends with suffixes from a list.
 * [**`getMedian`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L192): calculates the median value within given threshold values.
 * [**`getRoisFromMasks`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L259): populates the ROI Manager with regions identified from a segmentation mask.
-* [**`normalizePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L353): normalizes the pixel intensities of an image by its median value.
-* [**`readImage`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L383): reads image files with Bio-Format and labels the slices with the channel names.
-* [**`rescalePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L461): rescales pixel intensities to a custom range, including `NaN` values.
-* [**`setMasksFromRois`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L525): creates a segmentation mask from available ROI Manager regions.
-* [**`toggleBatchMode`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L583): improves performance for image processing, selections, and ROI Manager updates.
-* [**`waitForWindow`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L676): halts the macro progression until a window with a specific title is available.
+* [**`normalizePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L355): normalizes the pixel intensities of an image by its median value.
+* [**`readImage`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L385): reads image files with Bio-Format and labels the slices with the channel names.
+* [**`rescalePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L464): rescales pixel intensities to a custom range, including `NaN` values.
+* [**`setMasksFromRois`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L528): creates a segmentation mask from available ROI Manager regions.
+* [**`toggleBatchMode`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L586): improves performance for image processing, selections, and ROI Manager updates.
+* [**`waitForWindow`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L679): halts the macro progression until a window with a specific title is available.
 
 ### Copyright notices
 The [ImageJ2 image](https://github.com/imagej/imagej.github.io/blob/main/media/icons/imagej-shadow.png) is part of the [GitHub Pages for ImageJ](https://github.com/imagej/imagej.github.io).
