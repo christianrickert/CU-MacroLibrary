@@ -226,6 +226,18 @@ function getRegionID(index)
   return regionID;
 }
 
+// Function to get label from region of interest name
+function getRegionLabel(index)
+{
+  delimiter = ":";
+
+  roiManager("select", index);
+  regionName = Roi.getName();
+  delimiterIndex = indexOf(regionName, delimiter);
+  regionLabel = substring(regionName, delimiterIndex + 1);  // region label (without delimiter)
+  return regionLabel;
+}
+
 // Function to return relative overlap between two regions of interest
 function getRegionOverlap(parentRegionIndex, childRegionIndex)
 {
@@ -273,13 +285,14 @@ function getRoisFromMasks()
     withRoiManager = isAvailableWindow("ROI Manager");
     if ( !withRoiManager )
       run("ROI Manager...");
+    roiManager("UseNames", "true");  // make ROI labels visible in image
     roi = 0;
     rois = roiManager("count");
 
     // convert image to 32-bit grayscale and get statistics
     toggleBatchMode(true, false);
-    run("Select None");  // get full image for duplication
-    run("Duplicate...", "title=tmp");
+    clearAllSelections();  // get full image for duplication
+    run("Duplicate...", "title=tmp");  // slice from stack
     bits = bitDepth();
     if ( bits != 32 && ( bits == 8 || bits == 16 ) )  // available type conversions
       run("32-bit");
@@ -299,18 +312,17 @@ function getRoisFromMasks()
           doWand(x, y, 0, "4-connected");  // create selection for mask, fastest method
           roiManager("add");
           index = getLastRegionIndex();
-          renameRegion(index, toString(rois + roi) + delimiter + "roi");
+          renameRegion(index, toString(rois + roi) + delimiter + "roi");  // adding region ID
           floodFill(x, y);  // exclude selectedd pixels from future search
           if ( index % 1000 == 0 )
-            showStatus("!Adding " + (index + 1) + " out of " + max + " regions to ROI Manager...");
+            showStatus("!Adding " + ((index - rois) + 1) + " out of " + max + " regions to ROI Manager...");
         }
       }
 
     }
 
     close("tmp");
-    roiManager("sort");
-    roiManager("Show None");
+    roiManager("Show All with labels");
     toggleBatchMode(true, false);
     showStatus("");  // enable status updates
     output = roiManager("count") - rois;
