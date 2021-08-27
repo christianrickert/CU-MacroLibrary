@@ -51,31 +51,6 @@ print(libraryVersion);
  *  Functions
  */
 
-// Function to substract child regions from a parent region and add it to the ROI Manager
-function substractRegions(parentRegionIndex, childRegionIndices)
-{
-  success = false;
-  childRegionIndicesLength = childRegionIndices.length;
-
-  roiManager("select", parentRegionIndex);  // parent region
-
-  // hint: use 'newArray(a, b, c)' to substract regions a, b, and c from the parent region,
-  // and use 'newArray(toString(d))' to substract a single region, d, from the parent region
-  for (i = 0; i < childRegionIndicesLength; ++i )  // child regions
-  {
-    setKeyDown("alt");  // simulate pressing the ALT key (down position)
-    roiManager("select", childRegionIndices[i]);  // substract
-  }
-
-  setKeyDown("none");  // release all keys (up position)
-  if ( selectionType() != -1 )  // function returns -1 if there is no selection left
-  {
-    roiManager("add");
-    success = true;
-  }
-  return success;
-}
-
 // Function to remove all selections
 function clearAllSelections()
 {
@@ -608,6 +583,31 @@ function setMasksFromRois()
     output = max - min;
   }
   return output;
+}
+
+// Function to substract child regions from a parent region and add it to the ROI Manager
+function substractRegions(parentRegionIndex, childRegionIndices)
+{
+  success = false;
+  childRegionIndicesLength = childRegionIndices.length;
+
+  roiManager("select", parentRegionIndex);  // parent region
+
+  // hint: use 'newArray(a, b, c)' to substract regions a, b, and c from the parent region,
+  // and use 'newArray(toString(d))' to substract a single region, d, from the parent region
+  for (i = 0; i < childRegionIndicesLength; ++i )  // child regions
+  {
+    setKeyDown("alt");  // simulate pressing the ALT key (down position)
+    roiManager("select", childRegionIndices[i]);  // substract
+  }
+
+  setKeyDown("none");  // release all keys (up position)
+  if ( selectionType() != -1 )  // function returns -1 if there is no selection left
+  {
+    roiManager("add");
+    success = true;
+  }
+  return success;
 }
 
 // Function to toggle the batch mode on/off or show/hide images while in batch mode
