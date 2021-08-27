@@ -52,7 +52,7 @@ print(libraryVersion);
  */
 
 // Function to substract child regions from a parent region and add it to the ROI Manager
-function addRemainderRegion(parentRegionIndex, childRegionIndices)
+function substractRegions(parentRegionIndex, childRegionIndices)
 {
   success = false;
   childRegionIndicesLength = childRegionIndices.length;
