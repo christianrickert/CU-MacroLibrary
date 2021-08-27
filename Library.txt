@@ -39,38 +39,7 @@ requires("1.53h");  // minimum ImageJ version
  */
 
 // global, preset for macros
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-08-25)";
-
-// local, overwritten by macros
-array = newArray(0);
-background = true;
-blue = 0;
-childRegionIndices = newArray(0);
-childRegionIndex = 0;
-counts = 0;
-file = "";
-green = 0;
-group = 0;
-image = "";
-index = 0;
-max = 0;
-max_in = 0;
-max_out = 0;
-min = 0;
-min_in = 0;
-min_out = 0;
-name = "";
-parentRegionIndex = 0;
-red = 0;
-size = 0;
-string = "";
-suffixes = newArray("");
-temporary = true;
-title = "";
-unit = "pixel";
-useBatchMode = false;
-value = 0;
-versionString = "";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-08-27)";
 
 /*
  *  Start
@@ -269,12 +238,16 @@ function getResizedSelection(index, value, unit)
 }
 
 // Function to convert grayscale image masks into ROIs
-function getRoisFromMasks()
+function getRoisFromMasks(safemode)
 {
   // Basic assumption is that the background has a grayscale value of zero and that
   // masks have sequentially incrementing values up to the total number of ROIs.
   // Note that the 'doWand' function might fail for some "objects, especially one pixel
-  // wide lines [...] unless they have been thresholded".
+  // wide lines [...] unless they have been thresholded", for ring structures, and
+  // for disconnected regions - which will sometimes be added as filled circles and
+  // separate regions of interest, respectively.
+  // The safe mode uses thresholding and the 'Create Selection' function instead,
+  // which is much slower (50:1), but doesn't exhibit any of the previous limitations.
   delimiter = ":";
   output = 0;
 
@@ -288,6 +261,7 @@ function getRoisFromMasks()
     roiManager("UseNames", "true");  // make ROI labels visible in image
     roi = 0;
     rois = roiManager("count");
+    regionLabel = delimiter + "roi";
 
     // convert image to 32-bit grayscale and get statistics
     toggleBatchMode(true, false);
@@ -296,29 +270,50 @@ function getRoisFromMasks()
     bits = bitDepth();
     if ( bits != 32 && ( bits == 8 || bits == 16 ) )  // available type conversions
       run("32-bit");
-    getDimensions(width, height, channels, slices, frames);
+    showStatus("!");  // suppress automatic status updates
 
     // get regions of interest from grayscale values
-    Color.setForegroundValue(0);
-    showStatus("!");  // suppress automatic status updates
-    for ( x = 0; x < width; x++ )
+    if ( !safemode )
     {
-
-      for ( y = 0; y < height; y++ )
+      getDimensions(width, height, channels, slices, frames);
+      Color.setForegroundValue(0);
+      for ( x = 0; x < width; x++ )
       {
-        roi = getPixel(x, y);
-        if ( roi > 0 )  // region of interest mask
+
+        for ( y = 0; y < height; y++ )
         {
-          doWand(x, y, 0, "4-connected");  // create selection for mask, fastest method
-          roiManager("add");
-          index = getLastRegionIndex();
-          renameRegion(index, toString(rois + roi) + delimiter + "roi");  // adding region ID
-          floodFill(x, y);  // exclude selectedd pixels from future search
-          if ( index % 1000 == 0 )
-            showStatus("!Adding " + ((index - rois) + 1) + " out of " + max + " regions to ROI Manager...");
+          roi = getPixel(x, y);
+          if ( roi > 0 )  // region of interest mask
+          {
+            doWand(x, y, 0, "4-connected");  // create selection for mask, fastest method
+            roiManager("add");
+            index = getLastRegionIndex();
+            renameRegion(index, toString(rois + roi) + regionLabel);  // adding region ID
+            floodFill(x, y);  // exclude selectedd pixels from future search
+            if ( index % 1000 == 0 )
+              showStatus("!Adding " + ((index - rois) + 1) + " out of " + max + " regions to ROI Manager...");
+          }
         }
       }
-
+      else  // safe mode
+      {
+        getRawStatistics(pixels, mean, min, max);
+        if ( min == 0 )  // exclude background
+          min++;
+        for ( roi = min; roi <= max; roi++ )
+        {
+          setThreshold(roi, roi);  // threshold individual mask by grayscale value
+          run("Create Selection");  // extremely slow, interferes with particle analysis
+          if ( selectionType != -1 )  // selection with current threshold available
+          {
+            roiManager("add");
+            index = getLastRegionIndex();
+            renameRegion(index, toString(rois + roi) + regionLabel);
+            if ( roi % 20 == 0 )
+              showStatus("!Adding " + ((index - rois) + 1) + " out of " + max + " regions to ROI Manager...");
+          }
+        }
+      }
     }
 
     close("tmp");
