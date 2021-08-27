@@ -148,8 +148,28 @@ function fillRegion(v)
 {
   Roi.getContainedPoints(xx, yy);
   pixels = xx.length;
-  for ( i = 0; i < pixels; i++ )
+  for ( i = 0; i < pixels; ++i )
     setPixel(xx[i], yy[i], v);
+}
+
+// Function to retrieve all files with a given suffix from a folder (batch)
+function getFilesInFolder(dialog, suffixes)
+{
+  output = newArray();
+
+  filePath = File.openDialog(dialog);
+  parentFolder = File.getParent(filePath);
+  objects = getFileList(parentFolder);  // files and folders
+  objectsLength = objects.length;
+  output = Array.concat(output, filePath);  // selected file in folder
+
+  for (i = 0; i < objectsLength; ++i)  // all other files in folder
+  {
+    objectPath = parentFolder + File.separator + objects[i];
+    if( endsWithEither(objectPath, suffixes) && objectPath != filePath )
+      output = Array.concat(output, objectPath);
+  }
+  return output;
 }
 
 // Function to return the index of the last ROI Manager element
@@ -277,10 +297,10 @@ function getRoisFromMasks(safemode)
     {
       getDimensions(width, height, channels, slices, frames);
       Color.setForegroundValue(0);
-      for ( x = 0; x < width; x++ )
+      for ( x = 0; x < width; ++x )
       {
 
-        for ( y = 0; y < height; y++ )
+        for ( y = 0; y < height; ++y )
         {
           roi = getPixel(x, y);
           if ( roi > 0 )  // region of interest mask
@@ -300,7 +320,7 @@ function getRoisFromMasks(safemode)
         getRawStatistics(pixels, mean, min, max);
         if ( min == 0 )  // exclude background
           min++;
-        for ( roi = min; roi <= max; roi++ )
+        for ( roi = min; roi <= max; ++roi )
         {
           setThreshold(roi, roi);  // threshold individual mask by grayscale value
           run("Create Selection");  // extremely slow, interferes with particle analysis
@@ -350,7 +370,7 @@ function isAvailableWindow(title)
   titles = getList("window.titles");
   titleLength = titles.length;
 
-  for (i = 0; i < titleLength; i++)
+  for (i = 0; i < titleLength; ++i)
   {
     if ( titles[i] == title )
       output = true;
@@ -551,7 +571,7 @@ function setMasksFromRois()
     newImage("masks from rois", "32-bit black", start_width, start_height, 1);
 
     // crop new image to required minimum size
-    for ( index = 0; index < rois; index++  )
+    for ( index = 0; index < rois; ++index  )
     {
       roiManager("select", index);
       Roi.getBounds(x, y, width, height);  // bounding box dimensions for ROI
@@ -567,7 +587,7 @@ function setMasksFromRois()
 
     // draw gray values
     showStatus("!");  // suppress automatic status updates
-    for ( index = 0; index < rois; index++  )
+    for ( index = 0; index < rois; ++index  )
     {
       roi = parseInt(getRegionID(index));  // get grayscale value from Region ID
       if ( !isNaN(roi) )
