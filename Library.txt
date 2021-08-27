@@ -290,27 +290,26 @@ function getRoisFromMasks(safemode)
           }
         }
       }
-      else  // safe mode
+    }
+    else  // safe mode
+    {
+      getRawStatistics(pixels, mean, min, max);
+      if ( min == 0 )  // exclude background
+        min++;
+      for ( roi = min; roi <= max; ++roi )
       {
-        getRawStatistics(pixels, mean, min, max);
-        if ( min == 0 )  // exclude background
-          min++;
-        for ( roi = min; roi <= max; ++roi )
+        setThreshold(roi, roi);  // threshold individual mask by grayscale value
+        run("Create Selection");  // extremely slow, interferes with particle analysis
+        if ( selectionType != -1 )  // selection with current threshold available
         {
-          setThreshold(roi, roi);  // threshold individual mask by grayscale value
-          run("Create Selection");  // extremely slow, interferes with particle analysis
-          if ( selectionType != -1 )  // selection with current threshold available
-          {
-            roiManager("add");
-            index = getLastRegionIndex();
-            renameRegion(index, toString(rois + roi) + regionLabel);
-            if ( roi % 20 == 0 )
-              showStatus("!Adding " + ((index - rois) + 1) + " out of " + max + " regions to ROI Manager...");
-          }
+          roiManager("add");
+          index = getLastRegionIndex();
+          renameRegion(index, toString(rois + roi) + regionLabel);
+          if ( roi % 20 == 0 )
+            showStatus("!Adding " + ((index - rois) + 1) + " out of " + max + " regions to ROI Manager...");
         }
       }
     }
-
     close("tmp");
     roiManager("Show All with labels");
     toggleBatchMode(true, false);
