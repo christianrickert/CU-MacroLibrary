@@ -278,7 +278,7 @@ function getRoisFromMasks(safemode)
             doWand(x, y, 0, "4-connected");  // create selection for mask, fastest method
             roiManager("add");
             index = getLastRegionIndex();
-            renameRegion(index, toString(roi) + regionLabel + delimiter + "roi");  // adding region ID and label
+            renameRegion(index, toString(roi) + delimiter + "roi");  // adding region ID and label
             floodFill(x, y);  // exclude selectedd pixels from future search
             if ( index % 1000 == 0 )
               showStatus("!Adding " + ((index - rois) + 1) + " out of " + max + " regions to ROI Manager...");
