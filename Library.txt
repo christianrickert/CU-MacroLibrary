@@ -39,7 +39,7 @@ requires("1.53h");  // minimum ImageJ version
  */
 
 // global, preset for macros
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-08-27)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-09-09)";
 
 /*
  *  Start
@@ -304,7 +304,7 @@ function getRoisFromMasks(safemode)
         {
           roiManager("add");
           index = getLastRegionIndex();
-          renameRegion(index, toString(rois + roi) + regionLabel);
+          renameRegion(index, toString(roi) + regionLabel);
           if ( roi % 20 == 0 )
             showStatus("!Adding " + ((index - rois) + 1) + " out of " + max + " regions to ROI Manager...");
         }
