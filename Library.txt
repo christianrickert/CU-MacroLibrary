@@ -38,8 +38,11 @@ requires("1.53h");  // minimum ImageJ version
  *  Variables
  */
 
-// global, preset for macros
+// global, preset for all macros
 var libraryVersion = "CU-MacroLibrary v1.00 (2021-09-09)";
+
+// local, used by library functions
+delimiter = ":";
 
 /*
  *  Start
@@ -181,8 +184,6 @@ function getPixelCalibration()
 // Function to get id from region of interest name
 function getRegionID(index)
 {
-  delimiter = ":";
-
   roiManager("select", index);
   regionName = Roi.getName();
   delimiterIndex = indexOf(regionName, delimiter);
@@ -193,8 +194,6 @@ function getRegionID(index)
 // Function to get label from region of interest name
 function getRegionLabel(index)
 {
-  delimiter = ":";
-
   roiManager("select", index);
   regionName = Roi.getName();
   delimiterIndex = indexOf(regionName, delimiter);
@@ -243,7 +242,6 @@ function getRoisFromMasks(safemode)
   // separate regions of interest, respectively.
   // The safe mode uses thresholding and the 'Create Selection' function instead,
   // which is much slower (50:1), but doesn't exhibit any of the previous limitations.
-  delimiter = ":";
   output = 0;
 
   getRawStatistics(pixels, mean, min, max);
@@ -582,6 +580,20 @@ function setMasksFromRois()
     output = max - min;
   }
   return output;
+}
+
+// Function to set id for region of interest name
+function setRegionID(index, number)
+{
+  rola = getRegionLabel();
+  renameRegion(index, toString(number) + delimiter + rola);  // avoid "NaN" error with preceeding numeric value
+}
+
+// Function to set label for region of interest name
+function setRegionLabel(index, string)
+{
+  roid = getRegionID(index);
+  renameRegion(index, roid + delimiter + string);
 }
 
 // Function to substract child regions from a parent region and add it to the ROI Manager
