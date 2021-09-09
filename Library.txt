@@ -39,10 +39,8 @@ requires("1.53h");  // minimum ImageJ version
  */
 
 // global, preset for all macros
+var delimiter = ":";
 var libraryVersion = "CU-MacroLibrary v1.00 (2021-09-09)";
-
-// local, used by library functions
-delimiter = ":";
 
 /*
  *  Start
