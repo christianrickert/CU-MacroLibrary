@@ -252,7 +252,6 @@ function getRoisFromMasks(safemode)
     roiManager("UseNames", "true");  // make ROI labels visible in image
     roi = 0;
     rois = roiManager("count");
-    regionLabel = delimiter + "roi";
 
     // convert image to 32-bit grayscale and get statistics
     toggleBatchMode(true, false);
@@ -279,7 +278,7 @@ function getRoisFromMasks(safemode)
             doWand(x, y, 0, "4-connected");  // create selection for mask, fastest method
             roiManager("add");
             index = getLastRegionIndex();
-            renameRegion(index, toString(rois + roi) + regionLabel);  // adding region ID
+            renameRegion(index, toString(roi) + regionLabel + delimiter + "roi");  // adding region ID and label
             floodFill(x, y);  // exclude selectedd pixels from future search
             if ( index % 1000 == 0 )
               showStatus("!Adding " + ((index - rois) + 1) + " out of " + max + " regions to ROI Manager...");
