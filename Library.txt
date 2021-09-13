@@ -85,6 +85,7 @@ function deleteGroupRegions(group)
   RoiManager.selectGroup(group);
   if ( RoiManager.selected() > 0 )
     roiManager("delete");
+  clearAllSelections();
 }
 
 // Function to test if a string ends with suffixes from a list
