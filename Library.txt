@@ -40,7 +40,7 @@ requires("1.53h");  // minimum ImageJ version
 
 // global, preset for all macros
 var delimiter = ":";
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-09-13)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-09-14)";
 
 /*
  *  Start
@@ -322,12 +322,12 @@ function initializeArray(counts, value)
 }
 
 // Function to initialize a new batch run
-function initializeRun()
+function initializeRun(version)
 {
   print("\\Clear");  // clear Log window
   printDateTimeStamp();
   print("ImageJ2 v" + IJ.getFullVersion);
-  print(versionString);
+  print(version);
   run("Close All");  // close all image windows
   deleteAllRegions();  // remove all regions from ROI Manager
   run("Clear Results");  // empty Results table
