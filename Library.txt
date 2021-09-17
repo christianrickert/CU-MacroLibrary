@@ -40,7 +40,7 @@ requires("1.53h");  // minimum ImageJ version
 
 // global, preset for all macros
 var delimiter = ":";
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-09-14)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-09-17)";
 
 /*
  *  Start
@@ -255,7 +255,6 @@ function getRoisFromMasks(safemode)
     rois = roiManager("count");
 
     // convert image to 32-bit grayscale and get statistics
-    toggleBatchMode(true, false);
     clearAllSelections();  // get full image for duplication
     run("Duplicate...", "title=tmp");  // slice from stack
     bits = bitDepth();
@@ -308,7 +307,6 @@ function getRoisFromMasks(safemode)
     }
     close("tmp");
     roiManager("Show All with labels");
-    toggleBatchMode(true, false);
     showStatus("");  // enable status updates
     output = roiManager("count") - rois;
   }
@@ -537,7 +535,6 @@ function setMasksFromRois()
     start_height = 8192;
     end_width = 0;
     end_height = 0;
-    toggleBatchMode(true, false);
     newImage("masks from rois", "32-bit black", start_width, start_height, 1);
 
     // crop new image to required minimum size
@@ -573,7 +570,6 @@ function setMasksFromRois()
     run("Select None");
     getRawStatistics(pixels, mean, min, max);
     updateDisplayRange(min, max);
-    toggleBatchMode(true, false);
     showStatus("");  // enable status updates
     output = max - min;
   }
@@ -628,7 +624,7 @@ function toggleBatchMode(useBatchMode, temporary)
   // display updates during region manipulation: By minimizing the ROI Manager
   // window, the CPU load drops significantly. However, window decorators are
   // OS-accessible only. Luckily, we can resize the ROI Manager to 0x0 pixels,
-  // effectively minimizing the window and prevent window updates.
+  // effectively minimizing the window and preventing frequent window redraws.
 
   withRoiManager = isAvailableWindow("ROI Manager");
   if ( withRoiManager )
