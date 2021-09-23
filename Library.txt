@@ -40,7 +40,7 @@ requires("1.53h");  // minimum ImageJ version
 
 // global, preset for all macros
 var delimiter = ":";
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-09-17)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-09-23)";
 
 /*
  *  Start
@@ -233,62 +233,41 @@ function getResizedSelection(index, value, unit)
 // Function to convert grayscale image masks into ROIs
 function getRoisFromMasks(safemode)
 {
-  // Basic assumption is that the background has a grayscale value of zero and that
+  // Our basic assumption is that the background has a grayscale value of zero and that
   // masks have sequentially incrementing values up to the total number of ROIs.
-  // Note that the 'doWand' function might fail for some "objects, especially one pixel
-  // wide lines [...] unless they have been thresholded", for ring structures, and
-  // for disconnected regions - which will sometimes be added as filled circles and
-  // separate regions of interest, respectively.
-  // The safe mode uses thresholding and the 'Create Selection' function instead,
-  // which is much slower (50:1), but doesn't exhibit any of the previous limitations.
-  output = 0;
+  // The safe mode uses thresholding and the 'Create Selection' function, which detects
+  // disconnected regions independent of pixel distribution across the source image.
+  // The fast mode uses the 'doWand' function and might fail for some "objects, especially
+  // one pixel wide lines [...] unless they have been thresholded". However, disconnected
+  // clusters or pixels with the same gray value will never be connected to existing regions.
+  // We therefore introduce a merging step after the fast mode detection to overcome its
+  // detection limitations.
+  // Notice that the fast mode detects significantly faster than the safe mode for large,
+  // connected regions (i.e. nuclei, cell matrix, cells, etc.) with only few isolated pixels.
+  // In contrast, the safe mode exhibits a fixed detection rate irrespective of the regions.
+  // It is therefore particularly suitable for cytoplasm or cell membrane region detection.
+  // Note: the ROI Manager has to be started before calling this function!
+  roiManager("UseNames", "true");  // enable full labels
+  output = 0;  // ROI count
+  label = "roi";  // generic region label
+  start = roiManager("count");  // start index at end of existing list
+  roi = 0;  // ROI ID of current region
 
+  // convert image to 32-bit grayscale and get statistics
+  clearAllSelections();  // get full image for duplication
+  run("Duplicate...", "title=tmp");  // slice from stack
+  bits = bitDepth();
+  if ( bits != 32 && ( bits == 8 || bits == 16 ) )  // available type conversions
+    run("32-bit");
+  showStatus("!");  // suppress automatic status updates
+  
+  // get regions of interest from grayscale values
   getRawStatistics(pixels, mean, min, max);
   if ( max > 0 )
   {
-    // start ROI Manager if not available yet
-    withRoiManager = isAvailableWindow("ROI Manager");
-    if ( !withRoiManager )
-      run("ROI Manager...");
-    roiManager("UseNames", "true");  // make ROI labels visible in image
-    roi = 0;
-    rois = roiManager("count");
 
-    // convert image to 32-bit grayscale and get statistics
-    clearAllSelections();  // get full image for duplication
-    run("Duplicate...", "title=tmp");  // slice from stack
-    bits = bitDepth();
-    if ( bits != 32 && ( bits == 8 || bits == 16 ) )  // available type conversions
-      run("32-bit");
-    showStatus("!");  // suppress automatic status updates
-
-    // get regions of interest from grayscale values
-    if ( !safemode )
+    if ( safemode )  // safe mode for disconnected regions
     {
-      getDimensions(width, height, channels, slices, frames);
-      Color.setForegroundValue(0);
-      for ( x = 0; x < width; ++x )
-      {
-
-        for ( y = 0; y < height; ++y )
-        {
-          roi = getPixel(x, y);
-          if ( roi > 0 )  // region of interest mask
-          {
-            doWand(x, y, 0, "4-connected");  // create selection for mask, fastest method
-            roiManager("add");
-            index = getLastRegionIndex();
-            renameRegion(index, toString(roi) + delimiter + "roi");  // adding region ID and label
-            floodFill(x, y);  // exclude selectedd pixels from future search
-            if ( index % 1000 == 0 )
-              showStatus("!Adding " + ((index - rois) + 1) + " out of " + max + " regions to ROI Manager...");
-          }
-        }
-      }
-    }
-    else  // safe mode
-    {
-      getRawStatistics(pixels, mean, min, max);
       if ( min == 0 )  // exclude background
         min++;
       for ( roi = min; roi <= max; ++roi )
@@ -299,16 +278,91 @@ function getRoisFromMasks(safemode)
         {
           roiManager("add");
           index = getLastRegionIndex();
-          renameRegion(index, toString(roi) + delimiter + "roi");
+          renameRegion(index, toString(roi) + delimiter + label);
           if ( roi % 20 == 0 )
-            showStatus("!Adding " + ((index - rois) + 1) + " out of " + max + " regions to ROI Manager...");
+            showStatus("!Adding " + roi + " out of " + max + " regions to ROI Manager...");
         }
       }
     }
+    else  // fast mode for connected regions
+    {
+      getDimensions(width, height, channels, slices, frames);
+      group = 0;  // ROI ID of current group
+      marker = "00000";  // temporary ROI ID, moved to top of ROI Manager list after sorting
+      offset = start + 1;
+      value = 0;  // gray value of current pixel
+
+      for ( x = 0; x < width; ++x )
+      {
+        for ( y = 0; y < height; ++y )
+        {
+          roi = getPixel(x, y);
+          if ( roi > 0 )  // region of interest mask
+          {
+            doWand(x, y, 0, "4-connected");  // create selection for mask, fastest method
+            roiManager("add");
+            index = getLastRegionIndex();
+            renameRegion(index, marker + delimiter + roi);// adding temporary marker and region ID
+            floodFill(x, y);  // exclude selected pixels from future search
+            count = index - offset;
+            if ( count % 1000 == 0 )
+              showStatus("!Adding " + count + " out of " + max + " regions to ROI Manager...");
+          }
+        }
+      }
+
+      stop = roiManager("count");  // stop index at end of updated list
+      roiManager("sort");  // move temporary ROIs to top of ROI Manager list
+
+      // merge ROI groups excluding the last one
+      rois = stop - start;  // number of additional rois before merge
+      if ( rois > 1 )
+      {
+        group = getRegionLabel(0);  // region ID of merge group
+        groupArray = newArray(0);  // list of indices for merge group
+        roi = 0;  // current region ID
+        // iterate ROI Manager list, merge all groups except for the last one
+        for ( i = 0; i < rois; ++i )
+        {
+          roi = getRegionLabel(i);  // in this case: the region ID
+          if ( roi == group )
+            groupArray = Array.concat(groupArray, i);  // add next item to group
+          else  // roi != group
+          {
+            if ( groupArray.length == 1 )  // already connected region, update existing entry only
+              renameRegion((i - 1), toString(group) + delimiter + label);  // rename merged region
+            else  // multiple regionsa
+            {
+              if ( mergeRegions(groupArray) )  // add merged gregion to last index
+              {
+                RoiManager.setGroup(9);  // mark disconnected regions for removal 
+                renameRegion(getLastRegionIndex(), toString(group) + delimiter + "roi");
+              }
+            }
+            group = roi;  // prepare next group
+            groupArray = newArray(toString(i));
+          }
+          if ( i % 1000 == 0 )
+            showStatus("!Merging " + i + " out of " + rois + " regions in ROI Manager...");    
+        }
+        // merge the last group in the ROI Manager list, ignore merge status
+        if ( mergeRegions(groupArray) )
+        {
+          RoiManager.setGroup(9); 
+          renameRegion(getLastRegionIndex(), toString(group) + delimiter + "roi");
+        }
+        RoiManager.selectGroup(9);
+        showStatus("!Deleting " + RoiManager.selected + " out of " + roiManager("count") + " regions from ROI Manager...");
+        deleteGroupRegions(9);  // remove temporary (disconnected) ROI IDs
+        roiManager("sort");
+      }
+      else  // rois == 1
+        renameRegion(0, toString(1) + delimiter + "roi");
+    }
     close("tmp");
-    roiManager("Show All with labels");
     showStatus("");  // enable status updates
-    output = roiManager("count") - rois;
+    roiManager("sort");
+    output = roiManager("count") - start;
   }
   return output
 }
@@ -345,6 +399,20 @@ function isAvailableWindow(title)
   }
 
   return output;
+}
+
+// Function to merge regions in the ROI Manager
+function mergeRegions(array)
+{
+  success = false;
+  if ( array.length > 0 )
+  {
+    roiManager("select", array);
+    roiManager("combine");  // merge ("OR") disconnected regions
+    roiManager("add");
+    success = true;
+  }
+  return success;
 }
 
 // Function to normalize pixel intensities by their median value
@@ -524,6 +592,8 @@ function saveLogFile(file)
 function setMasksFromRois()
 {
   // Mask gray values are derived either from a Region ID or the ROI Manager position.
+  // Note: the ROI Manager has to be started before calling this function!
+  roiManager("UseNames", "true");  // enable full labels 
   gray = 0;
   output = 0;
   rois = roiManager("count");
