@@ -40,7 +40,7 @@ requires("1.53h");  // minimum ImageJ version
 
 // global, preset for all macros
 var delimiter = ":";
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-09-23)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-09-24)";
 
 /*
  *  Start
@@ -231,25 +231,24 @@ function getResizedSelection(index, value, unit)
 }
 
 // Function to convert grayscale image masks into ROIs
-function getRoisFromMasks(safemode)
+function getRoisFromMasks(label, normalmode)
 {
   // Our basic assumption is that the background has a grayscale value of zero and that
   // masks have sequentially incrementing values up to the total number of ROIs.
-  // The safe mode uses thresholding and the 'Create Selection' function, which detects
+  // The normal mode uses thresholding and the 'Create Selection' function, which detects
   // disconnected regions independent of pixel distribution across the source image.
   // The fast mode uses the 'doWand' function and might fail for some "objects, especially
   // one pixel wide lines [...] unless they have been thresholded". However, disconnected
   // clusters or pixels with the same gray value will never be connected to existing regions.
   // We therefore introduce a merging step after the fast mode detection to overcome its
   // detection limitations.
-  // Notice that the fast mode detects significantly faster than the safe mode for large,
+  // Notice that the fast mode detects significantly faster than the normal mode for large,
   // connected regions (i.e. nuclei, cell matrix, cells, etc.) with only few isolated pixels.
-  // In contrast, the safe mode exhibits a fixed detection rate irrespective of the regions.
+  // In contrast, the normal mode exhibits a fixed detection rate irrespective of the regions.
   // It is therefore particularly suitable for cytoplasm or cell membrane region detection.
   // Note: the ROI Manager has to be started before calling this function!
   roiManager("UseNames", "true");  // enable full labels
   output = 0;  // ROI count
-  label = "roi";  // generic region label
   start = roiManager("count");  // start index at end of existing list
   roi = 0;  // ROI ID of current region
 
@@ -266,14 +265,14 @@ function getRoisFromMasks(safemode)
   if ( max > 0 )
   {
 
-    if ( safemode )  // safe mode for disconnected regions
+    if ( normalmode )  // normal mode for disconnected regions
     {
       if ( min == 0 )  // exclude background
         min++;
       for ( roi = min; roi <= max; ++roi )
       {
         setThreshold(roi, roi);  // threshold individual mask by grayscale value
-        run("Create Selection");  // extremely slow, interferes with particle analysis
+        run("Create Selection");  // create selection from all masks, slow
         if ( selectionType != -1 )  // selection with current threshold available
         {
           roiManager("add");
@@ -299,7 +298,7 @@ function getRoisFromMasks(safemode)
           roi = getPixel(x, y);
           if ( roi > 0 )  // region of interest mask
           {
-            doWand(x, y, 0, "4-connected");  // create selection for mask, fastest method
+            doWand(x, y, 0, "4-connected");  // create selection from single mask, fast
             roiManager("add");
             index = getLastRegionIndex();
             renameRegion(index, marker + delimiter + roi);// adding temporary marker and region ID
@@ -336,7 +335,7 @@ function getRoisFromMasks(safemode)
               if ( mergeRegions(groupArray) )  // add merged gregion to last index
               {
                 RoiManager.setGroup(9);  // mark disconnected regions for removal 
-                renameRegion(getLastRegionIndex(), toString(group) + delimiter + "roi");
+                renameRegion(getLastRegionIndex(), toString(group) + delimiter + label);
               }
             }
             group = roi;  // prepare next group
@@ -349,7 +348,7 @@ function getRoisFromMasks(safemode)
         if ( mergeRegions(groupArray) )
         {
           RoiManager.setGroup(9); 
-          renameRegion(getLastRegionIndex(), toString(group) + delimiter + "roi");
+          renameRegion(getLastRegionIndex(), toString(group) + delimiter + label);
         }
         RoiManager.selectGroup(9);
         showStatus("!Deleting " + RoiManager.selected + " out of " + roiManager("count") + " regions from ROI Manager...");
