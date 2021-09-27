@@ -285,6 +285,7 @@ function getRoisFromMasks(label, normalmode)
     }
     else  // fast mode for connected regions
     {
+      Color.setForegroundValue(0);  // black, used by 'floodFill' function
       getDimensions(width, height, channels, slices, frames);
       group = 0;  // ROI ID of current group
       marker = "00000";  // temporary ROI ID, moved to top of ROI Manager list after sorting
