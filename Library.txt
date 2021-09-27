@@ -352,7 +352,7 @@ function getRoisFromMasks(label, normalmode)
           renameRegion(getLastRegionIndex(), toString(group) + delimiter + label);
         }
         RoiManager.selectGroup(9);
-        showStatus("!Deleting " + RoiManager.selected + " out of " + roiManager("count") + " regions from ROI Manager...");
+        showStatus("!Deleting " + RoiManager.selected + " out of " + rois + " regions from ROI Manager...");
         deleteGroupRegions(9);  // remove temporary (disconnected) ROI IDs
         roiManager("sort");
       }
