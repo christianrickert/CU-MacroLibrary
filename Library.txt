@@ -40,7 +40,7 @@ requires("1.53h");  // minimum ImageJ version
 
 // global, preset for all macros
 var delimiter = ":";
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-09-24)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-09-27)";
 
 /*
  *  Start
@@ -278,7 +278,7 @@ function getRoisFromMasks(label, normalmode)
           roiManager("add");
           index = getLastRegionIndex();
           renameRegion(index, toString(roi) + delimiter + label);
-          if ( roi % 20 == 0 )
+          if ( roi % 20 == 0 || roi == max )
             showStatus("!Adding " + roi + " out of " + max + " regions to ROI Manager...");
         }
       }
@@ -304,7 +304,7 @@ function getRoisFromMasks(label, normalmode)
             renameRegion(index, marker + delimiter + roi);// adding temporary marker and region ID
             floodFill(x, y);  // exclude selected pixels from future search
             count = index - offset;
-            if ( count % 1000 == 0 )
+            if ( count % 1000 == 0 || count == max )
               showStatus("!Adding " + count + " out of " + max + " regions to ROI Manager...");
           }
         }
