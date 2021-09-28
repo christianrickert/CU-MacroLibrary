@@ -240,8 +240,8 @@ function getRoisFromMasks(label, normalmode)
   // The fast mode uses the 'doWand' function and might fail for some "objects, especially
   // one pixel wide lines [...] unless they have been thresholded". However, disconnected
   // clusters or pixels with the same gray value will never be connected to existing regions.
-  // We therefore introduce a merging step after the fast mode detection to overcome its
-  // detection limitations.
+  // We therefore introduce a merging step after the fast mode detection to overcome the
+  // detection limitations as much as possible.
   // Notice that the fast mode detects significantly faster than the normal mode for large,
   // connected regions (i.e. nuclei, cell matrix, cells, etc.) with only few isolated pixels.
   // In contrast, the normal mode exhibits a fixed detection rate irrespective of the regions.
@@ -289,7 +289,6 @@ function getRoisFromMasks(label, normalmode)
       getDimensions(width, height, channels, slices, frames);
       group = 0;  // ROI ID of current group
       marker = "00000";  // temporary ROI ID, moved to top of ROI Manager list after sorting
-      offset = start + 1;
       value = 0;  // gray value of current pixel
 
       for ( x = 0; x < width; ++x )
@@ -304,7 +303,7 @@ function getRoisFromMasks(label, normalmode)
             index = getLastRegionIndex();
             renameRegion(index, marker + delimiter + roi);// adding temporary marker and region ID
             floodFill(x, y);  // exclude selected pixels from future search
-            count = index - offset;
+            count = (index - start) + 1;
             if ( count % 1000 == 0 || count == max )
               showStatus("!Adding " + count + " out of " + max + " regions to ROI Manager...");
           }
@@ -322,15 +321,15 @@ function getRoisFromMasks(label, normalmode)
         groupArray = newArray(0);  // list of indices for merge group
         roi = 0;  // current region ID
         // iterate ROI Manager list, merge all groups except for the last one
-        for ( i = 0; i < rois; ++i )
+        for ( index = 0; index < rois; ++index )
         {
-          roi = getRegionLabel(i);  // in this case: the region ID
+          roi = getRegionLabel(index);  // in this case: the region ID
           if ( roi == group )
-            groupArray = Array.concat(groupArray, i);  // add next item to group
+            groupArray = Array.concat(groupArray, index);  // add next item to group
           else  // roi != group
           {
             if ( groupArray.length == 1 )  // already connected region, update existing entry only
-              renameRegion((i - 1), toString(group) + delimiter + label);  // rename merged region
+              renameRegion((index - 1), toString(group) + delimiter + label);  // rename merged region
             else  // multiple regionsa
             {
               if ( mergeRegions(groupArray) )  // add merged gregion to last index
@@ -340,10 +339,11 @@ function getRoisFromMasks(label, normalmode)
               }
             }
             group = roi;  // prepare next group
-            groupArray = newArray(toString(i));
+            groupArray = newArray(toString(index));
           }
-          if ( i % 1000 == 0 )
-            showStatus("!Merging " + i + " out of " + rois + " regions in ROI Manager...");    
+          count = (index - start) + 1;
+          if ( count % 1000 == 0 )
+            showStatus("!Merging " + count + " out of " + rois + " regions in ROI Manager...");    
         }
         // merge the last group in the ROI Manager list, ignore merge status
         if ( mergeRegions(groupArray) )
@@ -589,14 +589,16 @@ function saveLogFile(file)
 }
 
 // Function to convert ROIs into grayscale image masks
-function setMasksFromRois(image)
+function setMasksFromRois(image, array)
 {
   // Mask gray values are derived either from a Region ID or the ROI Manager position.
+  // To select all regions, simply use the 'Array.getSequence(roiManager("count"))' as
+  // array - or select specific regions by group, i.e. by 'Roi.getGroup' return value..
   // Note: the ROI Manager has to be started before calling this function!
   roiManager("UseNames", "true");  // enable full labels 
   gray = 0;
   output = 0;
-  rois = roiManager("count");
+  rois = array.length;
 
   if ( rois > 0 )
   {
@@ -610,7 +612,7 @@ function setMasksFromRois(image)
     // crop new image to required minimum size
     for ( index = 0; index < rois; ++index  )
     {
-      roiManager("select", index);
+      roiManager("select", array[index]);
       Roi.getBounds(x, y, width, height);  // bounding box dimensions for ROI
       tmp_width = x + width;
       if ( tmp_width > end_width )  // increase width
@@ -626,15 +628,17 @@ function setMasksFromRois(image)
     showStatus("!");  // suppress automatic status updates
     for ( index = 0; index < rois; ++index  )
     {
-      roi = parseInt(getRegionID(index));  // get grayscale value from Region ID
+      region = array[index];
+      roi = parseInt(getRegionID(region));  // get grayscale value from Region ID
       if ( !isNaN(roi) )
         gray = roi;
       else  // grayscale value not found
         gray = index + 1;  // use incrementing grayscale values
-      roiManager("select", index);
+      roiManager("select", region);
       fillRegion(gray);
-      if ( index % 1000 == 0 )
-        showStatus("!Drawing " + (index + 1) + " out of " + rois + " grayscale masks to image...");
+      count = index + 1;
+      if ( count % 1000 == 0 || count == rois )
+        showStatus("!Drawing " + count + " out of " + rois + " grayscale masks to image...");
     }
 
     run("Select None");
