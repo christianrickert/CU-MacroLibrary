@@ -23,9 +23,9 @@ In addition, ImageJ2's macro editor will autocomplete function names from the li
 * [**`readImage`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L448): reads image files with Bio-Format and labels the slices with the channel names.
 * [**`rescalePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L527): rescales pixel intensities to a custom range, including `NaN` values.
 * [**`setMasksFromRois`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L591): creates a segmentation mask from available ROI Manager regions.
-* [**`substractRegions`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L663): implements the missing `Substract` function for the ROI Manager.
-* [**`toggleBatchMode`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L688): improves performance for image processing, selections, and ROI Manager updates.
-* [**`waitForWindow`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L781): halts the macro progression until a window with a specific title is available.
+* [**`substractRegions`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L667): implements the missing `Substract` function for the ROI Manager.
+* [**`toggleBatchMode`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L692): improves performance for image processing, selections, and ROI Manager updates.
+* [**`waitForWindow`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L785): halts the macro progression until a window with a specific title is available.
 
 ### Copyright notices
 The [ImageJ2 image](https://github.com/imagej/imagej.github.io/blob/main/media/icons/imagej-shadow.png) is part of the [GitHub Pages for ImageJ](https://github.com/imagej/imagej.github.io).
