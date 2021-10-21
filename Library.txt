@@ -40,7 +40,7 @@ requires("1.53h");  // minimum ImageJ version
 
 // global, preset for all macros
 var delimiter = ":";
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-09-28)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-10-21)";
 
 /*
  *  Start
@@ -718,6 +718,7 @@ function toggleBatchMode(useBatchMode, temporary)
       {
         print("\tExiting batch mode...");
         setBatchMode("exit and display");  // exits batch mode and displays all hidden images
+        setBatchMode(false);  // force immediate exit
         if ( withRoiManager )
         {
           print("\tRestoring ROI Manager...");
