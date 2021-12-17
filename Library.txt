@@ -40,7 +40,7 @@ requires("1.53h");  // minimum ImageJ version
 
 // global, preset for all macros
 var delimiter = ":";
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-10-22)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-12-17)";
 
 /*
  *  Start
@@ -201,8 +201,7 @@ function getPixelCalibration()
 // Function to get id from region of interest name
 function getRegionID(index)
 {
-  roiManager("select", index);
-  regionName = Roi.getName();
+  regionName = getRegionName(index);
   delimiterIndex = indexOf(regionName, delimiter);
   regionID = substring(regionName, 0, delimiterIndex);  // region id (without delimiter)
   return regionID;
@@ -211,29 +210,36 @@ function getRegionID(index)
 // Function to get label from region of interest name
 function getRegionLabel(index)
 {
-  roiManager("select", index);
-  regionName = Roi.getName();
+  regionName = getRegionName(index);
   delimiterIndex = indexOf(regionName, delimiter);
   regionLabel = substring(regionName, delimiterIndex + 1);  // region label (without delimiter)
   return regionLabel;
 }
 
+function getRegionName(index)
+{
+	roiManager("select", index);
+	regionName = Roi.getName();
+	return regionName;
+}
+
 // Function to return relative overlap between two regions of interest
 function getRegionOverlap(parentRegionIndex, childRegionIndex)
 {
-  overlap = 0;  // track overlap of roi with region in percent
+  overlap = 0;  // track overlap of child region with parent region
+
   roiManager("select", childRegionIndex);
-  Roi.getContainedPoints(roi_xx, roi_yy);  // pixels inside roi
-  roi_xx_length = roi_xx.length;
+  Roi.getContainedPoints(ch_xx, ch_yy);  // pixels inside child region
+  ch_xx_length = ch_xx.length;
   roiManager("select", parentRegionIndex);
 
-  for (p = 0; p < roi_xx_length; ++p)  // iterate through roi pixels
+  for (p = 0; p < ch_xx_length; ++p)  // iterate through child pixels
   {
-    if ( Roi.contains(roi_xx[p], roi_yy[p]) )  // roi pixel inside region
+    if ( Roi.contains(ch_xx[p], ch_yy[p]) )  // child pixel inside parent region
       overlap++;
   }
 
-  overlap = Math.round(overlap / roi_xx_length * 100);
+  overlap = overlap / ch_xx_length * 100.0;  // percentage
   return overlap;
 }
 
@@ -277,7 +283,7 @@ function getRoisFromMasks(label, normalmode)
   if ( bits != 32 && ( bits == 8 || bits == 16 ) )  // available type conversions
     run("32-bit");
   showStatus("!");  // suppress automatic status updates
-  
+
   // get regions of interest from grayscale values
   getRawStatistics(pixels, mean, min, max);
   if ( max > 0 )
@@ -352,7 +358,7 @@ function getRoisFromMasks(label, normalmode)
             {
               if ( mergeRegions(groupArray) )  // add merged gregion to last index
               {
-                RoiManager.setGroup(9);  // mark disconnected regions for removal 
+                RoiManager.setGroup(9);  // mark disconnected regions for removal
                 renameRegion(getLastRegionIndex(), toString(group) + delimiter + label);
               }
             }
@@ -361,12 +367,12 @@ function getRoisFromMasks(label, normalmode)
           }
           count = (index - start) + 1;
           if ( count % 1000 == 0 )
-            showStatus("!Merging " + count + " out of " + rois + " regions in ROI Manager...");    
+            showStatus("!Merging " + count + " out of " + rois + " regions in ROI Manager...");
         }
         // merge the last group in the ROI Manager list, ignore merge status
         if ( mergeRegions(groupArray) )
         {
-          RoiManager.setGroup(9); 
+          RoiManager.setGroup(9);
           renameRegion(getLastRegionIndex(), toString(group) + delimiter + label);
         }
         RoiManager.selectGroup(9);
@@ -417,6 +423,36 @@ function isAvailableWindow(title)
   }
 
   return output;
+}
+
+// Function to check if an element can be found in an array
+function isInArray(element, array)
+{
+  inArray = false;
+	arrayLength = array.length;
+	for ( i = 0; i < arrayLength; ++i )
+	{
+	  if ( element == array[i] )
+			inArray = true;
+	}
+
+	return inArray;
+}
+
+// Function to check for approximate overlap between two regions of interest
+function isInBounds(parentRegionIndex, childRegionIndex)
+{
+  inBounds = false;
+
+  roiManager("select", childRegionIndex);
+  Roi.getBounds(ch_x, ch_y, ch_width, ch_height);
+  roiManager("select", parentRegionIndex);
+  Roi.getBounds(pa_x, pa_y, pa_width, pa_height);
+  if ( ch_x >= pa_x && ch_x <= (pa_x + pa_width) &&
+       ch_y >= pa_y && ch_y <= (pa_y + pa_height) )  // fast approximation
+    inBounds = true;
+
+  return inBounds;
 }
 
 // Function to merge regions in the ROI Manager
@@ -613,7 +649,7 @@ function setMasksFromRois(image, array)
   // To select all regions, simply use the 'Array.getSequence(roiManager("count"))' as
   // array - or select specific regions by group, i.e. by 'Roi.getGroup' return value..
   // Note: the ROI Manager has to be started before calling this function!
-  roiManager("UseNames", "true");  // enable full labels 
+  roiManager("UseNames", "true");  // enable full labels
   gray = 0;
   output = 0;
   rois = array.length;
