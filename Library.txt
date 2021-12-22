@@ -40,7 +40,7 @@ requires("1.53h");  // minimum ImageJ version
 
 // global, preset for all macros
 var delimiter = ":";
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-12-21)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2021-12-22)";
 
 /*
  *  Start
@@ -455,6 +455,29 @@ function isInBounds(parentRegionIndex, childRegionIndex)
 
   return inBounds;
 }
+
+// Function to check for a complete overlap between two regions of interest
+function isInRegion(parentRegionIndex, childRegionIndex)
+{
+  // This implementation is faster than using the 'getRegionOverlap' function
+  // because the for loop checking the overlap can exit prematurely if a single
+  // pixel from the childRegion is outside of the parentRegion.
+  inRegion = true;
+
+  roiManager("select", childRegionIndex);
+  Roi.getContainedPoints(ch_xx, ch_yy);  // pixels in child region
+  roiManager("select", parentRegionIndex);
+
+  ch_xx_length = ch_xx.length;
+  for ( i = 0; (inRegion == true) && (i < ch_xx_length); ++i )
+  {
+    if ( !Roi.contains(ch_xx[i], ch_yy[i]) )  // child pixel outside parent region
+      inRegion = false;
+  }
+
+  return inRegion;
+}
+
 
 // Function to merge regions in the ROI Manager
 function mergeRegions(array)
