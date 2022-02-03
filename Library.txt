@@ -455,6 +455,7 @@ function isAvailableWindow(title)
 // Function to check if an element can be found in an array
 function isInArray(array, element)
 {
+  // The equality comparison treats integers and integer-strings interchangeably.
   inArray = false;
 
   arrayLength = array.length;
