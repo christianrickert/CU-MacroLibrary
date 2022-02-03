@@ -391,6 +391,33 @@ function getRoisFromMasks(label, normalmode)
   return output
 }
 
+// Function to return an array of slice numbers for selected channel names
+function getSlicesFromLabels(image, slices, channels)
+{
+  // We can match partial patterns, i.e. "CD3" would match "CD3" and "CD31", but also "ABCD32".
+  // In order to avoid accidental multiple hits, one could either provide the full, unambigous
+  // slice label or make use of delimiting characters:
+  // "CD3 ", with a trailing space, would match "CD3 (Opal 540), but not "CD31 (Opal 620).
+  output = newArray(0);
+  channelsLength = channels.length;
+  slicesLength = slices.length;
+
+  slice = "";
+  for (i = 1; i <= slicesLength; ++i)  // iterate through slices
+  {
+    
+    slice = toLowerCase(slices[i - 1]);
+    for (j = 0; j < channelsLength; ++j)  // iterate through channels
+    {
+      if ( slice.contains(toLowerCase(channels[j])) )
+        output = Array.concat(output, i);
+    }
+
+  }
+
+  return output;
+}
+
 // Function initializes and returns an array with default values
 function initializeArray(counts, value)
 {
