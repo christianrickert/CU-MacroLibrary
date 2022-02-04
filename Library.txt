@@ -218,9 +218,9 @@ function getRegionLabel(index)
 
 function getRegionName(index)
 {
-    roiManager("select", index);
-    regionName = Roi.getName();
-    return regionName;
+  roiManager("select", index);
+  regionName = Roi.getName();
+  return regionName;
 }
 
 // Function to return relative overlap between two regions of interest
@@ -392,7 +392,7 @@ function getRoisFromMasks(label, normalmode)
 }
 
 // Function to return an array of slice numbers for selected channel names
-function getSlicesFromLabels(image, slices, channels)
+function getSlicesFromLabels(labels, channels)
 {
   // We can match partial patterns, i.e. "CD3" would match "CD3" and "CD31", but also "ABCD32".
   // In order to avoid accidental multiple hits, one could either provide the full, unambigous
@@ -400,16 +400,16 @@ function getSlicesFromLabels(image, slices, channels)
   // "CD3 ", with a trailing space, would match "CD3 (Opal 540), but not "CD31 (Opal 620).
   output = newArray(0);
   channelsLength = channels.length;
-  slicesLength = slices.length;
+  labelsLength = labels.length;
 
-  slice = "";
-  for (i = 1; i <= slicesLength; ++i)  // iterate through slices
+  label = "";
+  for (i = 1; i <= labelsLength; ++i)  // iterate through slice labels
   {
-    
-    slice = toLowerCase(slices[i - 1]);
-    for (j = 0; j < channelsLength; ++j)  // iterate through channels
+
+    label = toLowerCase(labels[i - 1]);
+    for (j = 0; j < channelsLength; ++j)  // iterate through selected channels
     {
-      if ( slice.contains(toLowerCase(channels[j])) )
+      if ( label.contains(toLowerCase(channels[j])) )
         output = Array.concat(output, i);
     }
 
@@ -518,7 +518,7 @@ function makeSubstack(image, array, name)
   {
     selectWindow(image);
     run("Duplicate...", "title=" + v2p(name) + " duplicate");  // mimic "Make Substack..." behavior
-  
+
     for (i = nSlices; i > 0; --i)  // reverse iterate through slices
     {
       selectWindow(name);  // "Delete Slice" can yield focus to previous window
@@ -528,6 +528,7 @@ function makeSubstack(image, array, name)
     }
 
   }
+  return name;
 }
 
 // Function to merge regions in the ROI Manager
