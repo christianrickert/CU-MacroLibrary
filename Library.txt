@@ -507,7 +507,7 @@ function isInRegion(parentRegionIndex, childRegionIndex)
 }
 
 // Function to make a substack by deleting slices of a stack
-function makeSubstack(image, array)
+function makeSubstack(image, array, name)
 {
   // The macro command "Make Substack..." exhibits erratic behavior during runtime with custom slice numbers.
   // The macro error "Invalid input string"  (with value "") is thrown, despite proper initialization and
@@ -517,14 +517,14 @@ function makeSubstack(image, array)
   if ( (array.length > 0) && (array[0] > 0) )
   {
     selectWindow(image);
-    run("Duplicate...", "duplicate");  // mimic "Make Substack..." behavior
+    run("Duplicate...", "title=" + v2p(name) + " duplicate");  // mimic "Make Substack..." behavior
   
     for (i = nSlices; i > 0; --i)  // reverse iterate through slices
     {
+      selectWindow(name);  // "Delete Slice" can yield focus to previous window
       setSlice(i);
       if ( !isInArray(array, i) )
         run("Delete Slice", "delete=channel");  // use "delete=slice" for XYCZT-ordered hyperstack
-      selectWindow(image);  // "Delete Slice" can yield focus to previous window
     }
 
   }
