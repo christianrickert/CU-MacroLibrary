@@ -40,7 +40,7 @@ requires("1.53h");  // minimum ImageJ version
 
 // global, preset for all macros
 var delimiter = ":";
-var libraryVersion = "CU-MacroLibrary v1.00 (2021-12-22)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2022-02-03)";
 
 /*
  *  Start
@@ -218,9 +218,9 @@ function getRegionLabel(index)
 
 function getRegionName(index)
 {
-	roiManager("select", index);
-	regionName = Roi.getName();
-	return regionName;
+    roiManager("select", index);
+    regionName = Roi.getName();
+    return regionName;
 }
 
 // Function to return relative overlap between two regions of interest
@@ -506,6 +506,29 @@ function isInRegion(parentRegionIndex, childRegionIndex)
   return inRegion;
 }
 
+// Function to make a substack by deleting slices of a stack
+function makeSubstack(image, array)
+{
+  // The macro command "Make Substack..." exhibits erratic behavior during runtime with custom slice numbers.
+  // The macro error "Invalid input string"  (with value "") is thrown, despite proper initialization and
+  // formatting of the corresponding input string as documented in the Debug window. Might be a timing issue.
+  // Arrays with multiple elements can be provided as integers or strings with "newArray(1, "2", 5)".
+  // However, arrays with single elements can only be provided as strings with "newArray("2")".
+  if ( (array.length > 0) && (array[0] > 0) )
+  {
+    selectWindow(image);
+    run("Duplicate...", "duplicate");  // mimic "Make Substack..." behavior
+  
+    for (i = nSlices; i > 0; --i)  // reverse iterate through slices
+    {
+      setSlice(i);
+      if ( !isInArray(array, i) )
+        run("Delete Slice", "delete=channel");  // use "delete=slice" for XYCZT-ordered hyperstack
+      selectWindow(image);  // "Delete Slice" can yield focus to previous window
+    }
+
+  }
+}
 
 // Function to merge regions in the ROI Manager
 function mergeRegions(array)
