@@ -94,7 +94,7 @@ function endsWithEither(string, suffixes)
   suffixesLength = suffixes.length;
   found = false;
 
-  for (i = 0; i < suffixesLength; ++i)
+  for ( i = 0; i < suffixesLength; ++i )
   {
     if ( endsWith(string, suffixes[i]) )
       found = true;
@@ -158,7 +158,7 @@ function getFilesInFolder(dialog, suffixes)
   objectsLength = objects.length;
   output = Array.concat(output, filePath);  // selected file in folder
 
-  for (i = 0; i < objectsLength; ++i)  // all other files in folder
+  for ( i = 0; i < objectsLength; ++i )  // all other files in folder
   {
     objectPath = parentFolder + File.separator + objects[i];
     if( endsWithEither(objectPath, suffixes) && objectPath != filePath )
@@ -233,7 +233,7 @@ function getRegionOverlap(parentRegionIndex, childRegionIndex)
   ch_xx_length = ch_xx.length;
   roiManager("select", parentRegionIndex);
 
-  for (p = 0; p < ch_xx_length; ++p)  // iterate through child pixels
+  for ( p = 0; p < ch_xx_length; ++p )  // iterate through child pixels
   {
     if ( Roi.contains(ch_xx[p], ch_yy[p]) )  // child pixel inside parent region
       overlap++;
@@ -403,11 +403,11 @@ function getSlicesFromLabels(labels, channels)
   labelsLength = labels.length;
 
   label = "";
-  for (i = 1; i <= labelsLength; ++i)  // iterate through slice labels
+  for ( i = 1; i <= labelsLength; ++i )  // iterate through slice labels
   {
 
     label = toLowerCase(labels[i - 1]);
-    for (j = 0; j < channelsLength; ++j)  // iterate through selected channels
+    for ( j = 0; j < channelsLength; ++j )  // iterate through selected channels
     {
       if ( label.contains(toLowerCase(channels[j])) )
         output = Array.concat(output, i);
@@ -443,7 +443,7 @@ function isAvailableWindow(title)
   titles = getList("window.titles");
   titleLength = titles.length;
 
-  for (i = 0; i < titleLength; ++i)
+  for ( i = 0; i < titleLength; ++i )
   {
     if ( titles[i] == title )
       output = true;
@@ -519,7 +519,7 @@ function makeSubstack(image, array, name)
     selectWindow(image);
     run("Duplicate...", "title=" + v2p(name) + " duplicate");  // mimic "Make Substack..." behavior
 
-    for (i = nSlices; i > 0; --i)  // reverse iterate through slices
+    for ( i = nSlices; i > 0; --i )  // reverse iterate through slices
     {
       selectWindow(name);  // "Delete Slice" can yield focus to previous window
       setSlice(i);
@@ -601,10 +601,10 @@ function readImage(file)
   Ext.setId(file);  // initializes the given id (file)
   Ext.getImageCount(sliceCount);
 
-  for (i = 0; slice == 0 && i < prefixesLength; ++i)  // try different metadata prefixes
+  for ( i = 0; slice == 0 && i < prefixesLength; ++i )  // try different metadata prefixes
   {
 
-    for (j = 0; slice == 0 && j < countingLength; ++j)  // try different metadata counts
+    for ( j = 0; slice == 0 && j < countingLength; ++j )  // try different metadata counts
     {
       Ext.getMetadataValue(metadataPrefixes[i] + metadataCounting[j], slice);
       if ( slice != 0 )  // matching prefix/count pair
@@ -618,7 +618,7 @@ function readImage(file)
 
   }
 
-  for (k = 1; k <= sliceCount; ++k)  // extract metadata for each slice
+  for ( k = 1; k <= sliceCount; ++k )  // extract metadata for each slice
   {
     setSlice(k);
     if ( counting == "01" && k <= 9 )  // Polaris
@@ -804,7 +804,7 @@ function substractRegions(parentRegionIndex, childRegionIndices)
 
   // hint: use 'newArray(a, b, c)' to substract regions a, b, and c from the parent region,
   // and use 'newArray(toString(d))' to substract a single region, d, from the parent region
-  for (i = 0; i < childRegionIndicesLength; ++i )  // child regions
+  for ( i = 0; i < childRegionIndicesLength; ++i )  // child regions
   {
     setKeyDown("alt");  // simulate pressing the ALT key (down position)
     roiManager("select", childRegionIndices[i]);  // substract
