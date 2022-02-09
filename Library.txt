@@ -40,7 +40,7 @@ requires("1.53h");  // minimum ImageJ version
 
 // global, preset for all macros
 var delimiter = ":";
-var libraryVersion = "CU-MacroLibrary v1.00 (2022-02-03)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2022-02-09)";
 
 /*
  *  Start
@@ -875,12 +875,22 @@ function toggleBatchMode(useBatchMode, temporary)
 }
 
 // Function to update the displayed range
-function updateDisplayRange(min, max)
+function updateDisplayRange(min_in, max_in)
 {
   // Update the display range without manipulating the pixel intensities.
-  if ( isNaN(min) || isNaN(max) )
+  min_out = min_in;
+  max_out = max_in;
+
+  if ( isNaN(min_in) || isNaN(max_in) )
+  {
     getRawStatistics(nPixels, mean, min, max);  // slice, not stack
-  setMinAndMax(min, max);
+    if ( isNaN(min_in) )
+      min_out = min;
+    if ( isNaN(max_in) )
+      max_out = max;
+  }
+
+  setMinAndMax(min_out, max_out);
 }
 
 // Function to convert a value to a parameter string
