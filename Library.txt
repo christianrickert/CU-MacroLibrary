@@ -174,18 +174,23 @@ function getLastRegionIndex()
 }
 
 // Function to calculate the Median pixel value
-function getMedian(min, max)
+function getMedian(min_in, max_in)
 {
+  min_out = min_in;
+  max_out = max_in;
+
   updateDisplayRange(NaN, NaN);  // force pixel values update
-  if ( isNaN(min) || isNaN(max) )
+  if ( isNaN(min_in) || isNaN(max_in) )
   {
-    getRawStatistics(nPixels, mean, min, max);
-    setThreshold(min, max);
-    output = getValue("Median raw limit");
-    resetThreshold();
+    getRawStatistics(nPixels, mean, min, max);  // slice, not stack
+    if ( isNaN(min_in) )
+      min_out = min;
+    if ( isNaN(max_in) )
+      max_out = max;
   }
-  else
-    output = getValue("Median raw");
+  setThreshold(min_out, max_out);
+  output = getValue("Median raw limit");
+  resetThreshold();
   return output;
 }
 
