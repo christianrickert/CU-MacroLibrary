@@ -40,7 +40,7 @@ requires("1.53h");  // minimum ImageJ version
 
 // global, preset for all macros
 var delimiter = ":";
-var libraryVersion = "CU-MacroLibrary v1.00 (2022-02-15)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2022-04-26)";
 
 /*
  *  Start
@@ -664,29 +664,39 @@ function rescalePixelValues(min_in, max_in, min_out, max_out)
 {
   // There's a lot of issue that need to be addressed, when rescaling the intensities
   // of an image from its initial range to a user-defined range: The code validates
-  // user input and catches some common issus that we've encountered.
+  // user input and handles some common cases that we've encountered.
   setOption("ScaleConversions", false);
   run("32-bit");
+  tmp = 0.0;
 
-  // check user input
-  if ( isNaN(min_in) || isNaN(max_in) )  // get extrema from image values
-    getRawStatistics(nPixels, mean, min_in, max_in);
-  difference_in = max_in - min_in;
-  if ( difference_in <= 0.0 )  // invalid denominator for target range factor
+  // check input values
+  if ( isNaN(min_in) )
+    getRawStatistics(nPixels, mean, min_in, max);  // slice, not stack
+  if ( isNaN(max_in) )
+    getRawStatistics(nPixels, mean, min, max_in);
+  if ( (max_in - min_in) < 0.0 )  // swap
   {
-    if ( difference_in == 0.0 )  // image is monochromatic, do not correct offset
-      min_in = 0.0;
-    difference_in = 1.0;  // ignore value for target range factor calculation
+    tmp = min_in;
+    min_in = max_in;
+    max_in = tmp;
   }
-  if ( isNaN(min_out) || isNaN(max_out) )  // set arbitrary values
+
+  // check output values
+  if ( isNaN(min_out) )
+    min_out = 0;
+  if ( isNaN(max_out) )
+    max_out = 1;
+  if ( (max_out - min_out) < 0.0 )
   {
-    min_out = 0.0;
-    max_out = 1.0;
+    tmp = min_out;
+    min_out = max_out;
+    max_out = tmp;
   }
-  difference_out = max_out - min_out;
 
   // work with variable target pixel ranges
-  if ( difference_out > 0.0 )
+  difference_in = max_in - min_in;
+  difference_out = max_out - min_out;
+  if ( (difference_in > 0.0) && (difference_out > 0.0) )
   {
     // substract offset from zero, shift left
     if ( min_in > 0.0 )
@@ -698,21 +708,17 @@ function rescalePixelValues(min_in, max_in, min_out, max_out)
 
     // add offset from zero, shift right
     run("Add...", "value=" + v2p(min_out) + " slice");
-
-    // correct numerical errors
-    getRawStatistics(nPixels, mean, min, max);
-    if ( min < min_out )
-      run("Min...", "value=" + v2p(min_out));
-    if ( max > max_out )
-      run("Max...", "value=" + v2p(max_out));
   }
-  // work with fixed target pixel values
-  else if ( max_out == 255 || max_out == 65535 || max_out == 1e30 )  // max values
-    run("Set...", "value=" + v2p(max_out));
-  else if ( min_out == 0 )  // min value
-    run("Set...", "value=" + v2p(min_out));
-  else  // arbitrary value
-    run("Set...", "value=" + v2p(max_out));
+
+  // adjust final output range and correct numerical errors
+  getRawStatistics(nPixels, mean, min, max);
+  if ( min < min_out )
+    run("Min...", "value=" + v2p(min_out));
+  if ( max > max_out )
+    run("Max...", "value=" + v2p(max_out));
+  }
+
+  // update display range to match new pixel values
   updateDisplayRange(NaN, NaN);
 }
 
