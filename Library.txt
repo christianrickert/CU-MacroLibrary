@@ -40,7 +40,7 @@ requires("1.53h");  // minimum ImageJ version
 
 // global, preset for all macros
 var delimiter = ":";
-var libraryVersion = "CU-MacroLibrary v1.00 (2022-04-26)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2022-04-27)";
 
 /*
  *  Start
@@ -716,7 +716,6 @@ function rescalePixelValues(min_in, max_in, min_out, max_out)
     run("Min...", "value=" + v2p(min_out));
   if ( max > max_out )
     run("Max...", "value=" + v2p(max_out));
-  }
 
   // update display range to match new pixel values
   updateDisplayRange(NaN, NaN);
