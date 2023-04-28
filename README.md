@@ -19,15 +19,15 @@ In addition, ImageJ2's macro editor will autocomplete function names from the li
 * [**`getFilesInFolder`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L150): returns a list of files matching a suffix patterns.
 * [**`getMedian`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L176): calculates the median value within given threshold values.
 * [**`getMedianValue`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L197): calculates the median value for a given array.
-* [**`getRegionOverlap`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L249): calculates the relative overlap between two ROI Manager regions.
-* [**`getRoisFromMasks`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L280): populates the ROI Manager with regions identified from a segmentation mask.
-* [**`normalizePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L571): normalizes the pixel intensities of an image by its median value.
-* [**`readImage`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L601): reads image files with Bio-Format and labels the slices with the channel names.
-* [**`rescalePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L680): rescales pixel intensities to a custom range, including `NaN` values.
-* [**`setMasksFromRois`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L749): creates a segmentation mask from available ROI Manager regions.
-* [**`substractRegions`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L825): implements the missing `Substract` function for the ROI Manager.
-* [**`toggleBatchMode`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L850): improves performance for image processing, selections, and ROI Manager updates.
-* [**`waitForWindow`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L958): halts the macro progression until a window with a specific title is available.
+* [**`getRegionOverlap`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L253): calculates the relative overlap between two ROI Manager regions.
+* [**`getRoisFromMasks`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L284): populates the ROI Manager with regions identified from a segmentation mask.
+* [**`normalizePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L575): normalizes the pixel intensities of an image by its median value.
+* [**`readImage`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L605): reads image files with Bio-Format and labels the slices with the channel names.
+* [**`rescalePixelValues`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L684): rescales pixel intensities to a custom range, including `NaN` values.
+* [**`setMasksFromRois`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L753): creates a segmentation mask from available ROI Manager regions.
+* [**`substractRegions`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L829): implements the missing `Substract` function for the ROI Manager.
+* [**`toggleBatchMode`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L854): improves performance for image processing, selections, and ROI Manager updates.
+* [**`waitForWindow`**](https://github.com/christianrickert/CU-MacroLibrary/blob/main/Library.txt#L962): halts the macro progression until a window with a specific title is available.
 
 ### Copyright notices
 The [ImageJ2 image](https://github.com/imagej/imagej.github.io/blob/main/media/icons/imagej-shadow.png) is part of the [GitHub Pages for ImageJ](https://github.com/imagej/imagej.github.io).
