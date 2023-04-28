@@ -40,7 +40,7 @@ requires("1.53h");  // minimum ImageJ version
 
 // global, preset for all macros
 var delimiter = ":";
-var libraryVersion = "CU-MacroLibrary v1.00 (2022-07-13)";
+var libraryVersion = "CU-MacroLibrary v1.00 (2023-04-27)";
 
 /*
  *  Start
@@ -192,6 +192,24 @@ function getMedian(min_in, max_in)
   output = getValue("Median raw limit");
   resetThreshold();
   return output;
+}
+
+// Function to return the median value of an array
+function getMedianValue(array) {
+	output = NaN;
+	arrayLength = array.length;
+	if ( arrayLength > 0 ) {
+		if ( arrayLength == 1 ) {  // single element (float or string)
+			output = parseFloat(array[0]);
+		} else if ( arrayLength % 2 != 0 ) {  // odd number of elements
+			output = array[Math.floor(arrayLength / 2)];
+		} else {  // even number of elements
+			rightIndex = array[Math.floor(arrayLength / 2)];
+			leftIndex = array[rightIndex - 1];
+			output = (array[leftIndex] + array[rightIndex]) / 2.0;
+		}
+	}
+	return output;
 }
 
 // Function to get pixel calibration information
